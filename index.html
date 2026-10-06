@@ -12,40 +12,57 @@
         <link rel="stylesheet" type="text/css" href="public/styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/home.css" />
         <style>
-            /* 1. Eliminate seam / gaps between sections */
+            :root {
+                --shared-spacing: 1.07142857rem; /* 18px reference */
+            }
+
+            /* Image 1: Spacing below PlayStation cover */
+            .container-main-fm {
+                padding-bottom: var(--shared-spacing) !important;
+            }
+
+            /* Image 2: Spacing below "VISIT FUSION SEARCH" button */
+            .container-fusion-search {
+                padding-bottom: var(--shared-spacing) !important;
+            }
+
+            /* Image 3: Spacing below "VISIT FUSION CALCULATOR" button */
             .container-fusion-calculator {
                 margin-bottom: 0 !important;
-                padding-bottom: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
             }
+
+            /* Image 4: Spacing below "READ THE ABOUT SECTION" button */
             .container-about {
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
                 padding-top: 0 !important;
-                padding-bottom: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
             }
 
-            /* 2. Top-aligned ABOUT header */
+            /* Top-aligned ABOUT header */
             .container-about h2 {
                 margin-top: 0 !important;
                 padding-top: 0 !important;
             }
 
-            /* 3. Flush button bottoms */
-            .container-fusion-calculator .index-page-button {
-                margin-bottom: 0 !important;
-            }
+            /* Buttons have zero bottom margin so section padding controls the exact distance */
+            .container-fusion-calculator .index-page-button,
             .container-about .btn-about {
                 margin-bottom: 0 !important;
             }
 
-            /* 4. Flush footer */
-            footer,
-            .footer-bottom {
+            /* Image 5: Footer spacing above and below text */
+            footer {
                 margin-top: 0 !important;
-                padding-top: 0 !important;
+                padding: 0 !important;
+            }
+            .footer-bottom {
+                padding-top: var(--shared-spacing) !important;
+                padding-bottom: var(--shared-spacing) !important;
             }
 
-            /* 5. Navigation bar: Stacked rows with one unbroken vertical divider */
+            /* Navigation bar: Stacked rows with one unbroken vertical divider */
             .navbar-nav {
                 align-items: center;
             }
@@ -53,13 +70,11 @@
                 display: flex;
                 align-items: center;
                 height: 100%;
-                /* Unbroken continuous line across both text rows */
                 border-right: 2px solid #212529 !important;
             }
             .navbar-nav .nav-item:last-child {
                 border-right: none !important;
             }
-            /* Suppress any existing single-line text pipe pseudo-elements */
             .navbar-nav .nav-item::after {
                 content: none !important;
             }
@@ -97,7 +112,6 @@
                 <span class="navbar-toggler-icon d-md-none p-0 mx-2 collapsed"></span>
             </button>
 
-            <!-- NAVBAR: 2-Row text items separated by unbroken vertical dividers -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
@@ -146,6 +160,7 @@
         </header>
 
         <main class="container-fluid background-vrains">
+            <!-- SECTION 1: Cover image with spacing below -->
             <section class="row container-main-fm">
                 <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 my-4">
                     <h1 class="text-main my-4 text-white hero-title index-page-title">Yu-Gi-Oh! Forbidden Memories</h1>
@@ -174,19 +189,22 @@
                 </div>
             </section>
 
+            <!-- SECTION 2: Fusion Search with spacing below button -->
             <section class="row container-fusion-search">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between">
-                    <h2 class="text-main">
-                        <span class="fusion-search"> FUSION SEARCH </span>
-                    </h2>
+                    <div>
+                        <h2 class="text-main">
+                            <span class="fusion-search"> FUSION SEARCH </span>
+                        </h2>
 
-                    <p class="h3 text-subtext">
-                        With "Fusion Search"... you can look up any card!<br>
-                        Its information will appear on the right of your screen.<br>
-                        <br>
-                        "<strong>Search by NAME</strong>" will show you what your inputted card can fuse into.<br>
-                        "<strong>Search by RESULT</strong>" will show you what fuses into your inputted card.
-                    </p>
+                        <p class="h3 text-subtext">
+                            With "Fusion Search"... you can look up any card!<br>
+                            Its information will appear on the right of your screen.<br>
+                            <br>
+                            "<strong>Search by NAME</strong>" will show you what your inputted card can fuse into.<br>
+                            "<strong>Search by RESULT</strong>" will show you what fuses into your inputted card.
+                        </p>
+                    </div>
                     <div class="d-flex flex-column flex-md-row">
                         <a href="fusion-search.html" class="btn btn-lg btn-dark mx-md-4 index-page-button">Visit Fusion Search</a>
                     </div>
@@ -201,7 +219,7 @@
                 </div>
             </section>
 
-            <!-- FUSION CALCULATOR SECTION: Button at bottom touching ABOUT -->
+            <!-- SECTION 3: Fusion Calculator with spacing below button -->
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -216,7 +234,6 @@
                         </p>
                     </div>
 
-                    <!-- mt-auto pushes button to bottom; mx-md-4 keeps original horizontal placement -->
                     <div class="d-flex flex-column flex-md-row mt-auto mb-0 pb-0">
                         <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 mb-0 index-page-button">Visit Fusion Calculator</a>
                     </div>
@@ -231,7 +248,7 @@
                 </div>
             </section>
 
-            <!-- ABOUT SECTION: Button touching footer, Kaiba right-aligned to Atem -->
+            <!-- SECTION 4: About with spacing below button -->
             <section class="row container-about">
                 <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
                     <div>
@@ -244,7 +261,6 @@
                         </p>
                     </div>
 
-                    <!-- mt-auto and mb-0 places button touching the footer -->
                     <div class="d-flex flex-column flex-md-row mt-auto mb-0 pb-0">
                         <a href="about.html" class="btn btn-lg btn-about mb-0 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
                     </div>
@@ -260,9 +276,10 @@
             </section>
         </main>
 
+        <!-- SECTION 5: Footer with equal spacing above and below text -->
         <footer class="container-fluid mt-0 p-0">
             <div class="row footer-bottom m-0">
-                <div class="col text-center py-2 my-0">
+                <div class="col text-center p-0 my-0">
                     <a
                         class="d-inline m-0 p-0 text-decoration-none"
                         href="index.html"
@@ -298,14 +315,13 @@
         <script type="text/javascript" src="public/javascripts/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="public/javascripts/bootstrap.bundle.min.js"></script>
         <script type="text/javascript">
-            // Manual pixel nudge overrides if desired
             const ATEM_MANUAL_OFFSET = 0;
-            const KAIBA_MANUAL_OFFSET = 0;
+            // Image 6: Move Kaiba 2 pixels to the right
+            const KAIBA_MANUAL_OFFSET = 2;
 
             let atemNaturalTransparentPadding = 0;
             let kaibaNaturalTransparentPadding = 0;
 
-            // Automatically detects transparent space to the right of visible character pixels
             function detectImageTransparency(img, callback) {
                 if (!img || !img.complete || img.naturalWidth === 0) return;
                 try {
@@ -330,7 +346,7 @@
                         callback((canvas.width - 1) - maxX);
                     }
                 } catch (e) {
-                    // Safe fallback if running locally under file:// CORS
+                    // Safe fallback for local file:// access
                 }
             }
 
@@ -364,7 +380,7 @@
                         atem.style.transform = `translateX(${shiftA}px)`;
                     }
 
-                    // 3. Align Kaiba's right-most pixel to Atem's right-most pixel (gifRight)
+                    // 3. Align Kaiba's right-most pixel to Atem (+2px offset)
                     if (kaiba && kaiba.offsetParent !== null) {
                         const kaibaRect = kaiba.getBoundingClientRect();
                         const scaleK = kaiba.naturalWidth ? (kaibaRect.width / kaiba.naturalWidth) : 1;
