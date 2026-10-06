@@ -16,38 +16,51 @@
                 --shared-spacing: 1.07142857rem; /* 18px reference */
             }
 
-            /* Image 1: No space under cover; space above FUSION SEARCH */
-            .container-main-fm {
+            /* Image 1: No space between navigation buttons and cover image */
+            header.navbar {
+                padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
+            }
+            main.background-vrains {
+                padding-top: 0 !important;
+                margin-top: 0 !important;
+            }
+            .container-main-fm {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                padding-top: 0 !important;
                 padding-bottom: 0 !important;
             }
             .cover-playstation {
+                margin-top: 0 !important;
                 margin-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
             }
 
-            /* Image 2: Space above FUSION SEARCH; no space under GIF and button */
+            /* Image 2: Spacing below "VISIT FUSION SEARCH" button */
             .container-fusion-search {
-                padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 3: Space above FUSION CALCULATOR; no space under Atem and button */
+            /* Image 3: Spacing below "VISIT FUSION CALCULATOR" button */
             .container-fusion-calculator {
-                padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 4: Space above ABOUT; no space under Kaiba and button */
+            /* Image 4: Spacing below "READ THE ABOUT SECTION" button */
             .container-about {
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
-                padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
             }
 
-            /* Header titles: top margin zeroed so section padding defines exact space */
+            /* Section headers flush to top of their section */
             .container-fusion-search h2,
             .container-fusion-calculator h2,
             .container-about h2 {
@@ -55,11 +68,8 @@
                 padding-top: 0 !important;
             }
 
-            /* All buttons and character art flush to bottom of section */
-            .index-page-button,
-            .container-fusion-search .img-group,
-            .container-fusion-calculator .img-atem,
-            .container-about .img-kaiba {
+            /* All buttons have zero bottom margin so section padding controls the exact distance */
+            .index-page-button {
                 margin-bottom: 0 !important;
             }
 
@@ -73,13 +83,17 @@
                 padding-bottom: var(--shared-spacing) !important;
             }
 
-            /* Navigation bar: Stacked rows with one unbroken vertical divider */
+            /* Navigation bar: Equal spacing between buttons */
             .navbar-nav {
+                display: flex;
                 align-items: center;
             }
             .navbar-nav .nav-item {
                 display: flex;
                 align-items: center;
+                justify-content: center;
+                flex: 1 1 8.25rem;
+                min-width: 8.25rem;
                 height: 100%;
                 border-right: 2px solid #212529 !important;
             }
@@ -90,19 +104,21 @@
                 content: none !important;
             }
             .navbar-nav .nav-link {
+                width: 100%;
                 text-align: center;
                 line-height: 1.15;
-                padding: 0.35rem 0.85rem !important;
+                padding: 0.35rem 0.5rem !important;
                 font-weight: 700;
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
+                align-items: center;
             }
         </style>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
-        <header class="navbar navbar-expand-lg navbar-light bg-light flex-column flex-md-row">
+        <header class="navbar navbar-expand-lg navbar-light bg-light flex-column flex-md-row pb-0 mb-0">
             <a class="navbar-brand text-truncate" href="index.html">
                 <img
                     class="img-fluid ml-4"
@@ -170,9 +186,9 @@
             </div>
         </header>
 
-        <main class="container-fluid background-vrains">
-            <!-- SECTION 1: Cover image sits flush with bottom -->
-            <section class="row container-main-fm">
+        <main class="container-fluid background-vrains pt-0 mt-0">
+            <!-- SECTION 1: Cover image flush with navbar at the top -->
+            <section class="row container-main-fm pt-0 mt-0 pb-0 mb-0">
                 <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 my-4">
                     <h1 class="text-main my-4 text-white hero-title index-page-title">Yu-Gi-Oh! Forbidden Memories</h1>
                     <h2 class="text-main my-4 text-white hero-title">Fusion Calculator and More!</h2>
@@ -191,20 +207,20 @@
                         new features with "stylized" information.
                     </p>
                 </div>
-                <div class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 d-flex justify-content-center align-items-end order-md-2 order-lg-2 mb-0 pb-0">
+                <div class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 d-flex justify-content-center align-self-start order-md-2 order-lg-2 m-0 p-0">
                     <img
                         src="public/images/cover_playstation.webp"
-                        class="img-fluid cover-playstation d-none d-sm-block mb-0"
+                        class="img-fluid cover-playstation d-none d-sm-block m-0 p-0"
                         alt="Yu-Gi-Oh! Forbidden Memories Cover Playstation"
                     />
                 </div>
             </section>
 
-            <!-- SECTION 2: Space above title; GIF and button flush with bottom -->
+            <!-- SECTION 2: Spacing placed below the "VISIT FUSION SEARCH" button -->
             <section class="row container-fusion-search">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
-                        <h2 class="text-main">
+                        <h2 class="text-main mb-4 mt-0 pt-0">
                             <span class="fusion-search"> FUSION SEARCH </span>
                         </h2>
 
@@ -230,11 +246,11 @@
                 </div>
             </section>
 
-            <!-- SECTION 3: Space above title; Atem and button flush with bottom -->
+            <!-- SECTION 3: Spacing placed below the "VISIT FUSION CALCULATOR" button -->
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
-                        <h2 class="text-main mb-4">
+                        <h2 class="text-main mb-4 mt-0 pt-0">
                             <span class="fusion-calculator"> FUSION CALCULATOR </span>
                         </h2>
 
@@ -259,7 +275,7 @@
                 </div>
             </section>
 
-            <!-- SECTION 4: Space above title; Kaiba and button flush with bottom (touching footer) -->
+            <!-- SECTION 4: Spacing placed below the "READ THE ABOUT SECTION" button -->
             <section class="row container-about">
                 <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
                     <div>
