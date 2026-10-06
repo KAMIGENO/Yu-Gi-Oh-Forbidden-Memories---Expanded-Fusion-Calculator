@@ -11,6 +11,21 @@
         <link rel="stylesheet" type="text/css" href="public/styles/normalize.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/home.css" />
+        <style>
+            /* Eliminate color gap between Fusion Calculator (orange) and About (dark blue) */
+            .container-fusion-calculator {
+                margin-bottom: 0 !important;
+            }
+            .container-about {
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+            }
+            /* Eliminate gap between About section and footer */
+            footer,
+            .footer-bottom {
+                margin-top: 0 !important;
+            }
+        </style>
     </head>
 
     <body class="d-flex flex-column min-vh-100">
@@ -144,34 +159,36 @@
                 </div>
             </section>
 
+            <!-- ABOUT SECTION: Margins zeroed out to eliminate gaps -->
             <section class="row container-about">
-                <div class="col col-lg-5 offset-lg-1 my-4">
-                    <h2 class="text-main my-4"><span class="about-title"> ABOUT </span></h2>
+                <div class="col col-lg-5 offset-lg-1 pt-4 pb-0 my-0">
+                    <h2 class="text-main mb-4 mt-0"><span class="about-title"> ABOUT </span></h2>
 
-                    <p class="h3 my-5 text-subtext">
+                    <p class="h3 my-4 text-subtext">
                         Learn more about the Solumin's 
                         <strong>Yu-Gi-Oh! Forbidden Memories Fusion Calculator</strong>
                         project, and how to get involved.
                     </p>
 
                     <div class="d-flex flex-column flex-md-row">
-                        <a href="about.html" class="btn btn-lg btn-about mb-3 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
+                        <a href="about.html" class="btn btn-lg btn-about mb-0 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 my-4 d-none d-sm-none d-md-block">
+                <div class="col col-lg-5 offset-lg-1 pt-4 pb-0 my-0 d-none d-sm-none d-md-block align-self-end">
                     <img
                         loading="lazy"
                         src="public/images/kaiba.png"
-                        class="img-fluid my-4 ml-auto d-none d-sm-none d-md-block d-flex img-group"
+                        class="img-fluid mt-auto mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group"
                         alt="kaiba character"
                     />
                 </div>
             </section>
         </main>
 
-        <footer class="container-fluid mt-auto">
-            <div class="row footer-bottom">
-                <div class="col text-center my-3">
+        <!-- FOOTER: Flush with the About section -->
+        <footer class="container-fluid mt-0 p-0">
+            <div class="row footer-bottom m-0">
+                <div class="col text-center py-2 my-0">
                     <a
                         class="d-inline m-0 p-0 text-decoration-none"
                         href="index.html"
@@ -184,7 +201,7 @@
                             alt="millennium-pendant"
                         />
                     </a>
-                    <p class="my-3 text-white d-inline">
+                    <p class="my-0 text-white d-inline">
                         Yu-Gi-Oh! Forbidden Memories Fusion Calculator © 2020
                     </p>
                     <a
@@ -207,15 +224,9 @@
         <script type="text/javascript" src="public/javascripts/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="public/javascripts/bootstrap.bundle.min.js"></script>
         <script type="text/javascript">
-            /*
-             * Optional manual nudge (in px): If you ever need to manually push Atem
-             * further right or left by a specific pixel amount, change this number.
-             */
             const ATEM_MANUAL_OFFSET = 0;
-
             let atemNaturalTransparentPadding = 0;
 
-            // Automatically calculates transparent space to the right of Atem's visible hair
             function detectAtemTransparency(img) {
                 if (!img || !img.complete || img.naturalWidth === 0) return;
                 try {
@@ -240,7 +251,7 @@
                         atemNaturalTransparentPadding = (canvas.width - 1) - maxX;
                     }
                 } catch (e) {
-                    // Falls back cleanly if running locally under file:// CORS restrictions
+                    // Falls back cleanly if running locally under file:// CORS
                 }
             }
 
@@ -251,7 +262,6 @@
 
                 if (!fusionGif || fusionGif.offsetParent === null) return;
 
-                // Reset transforms to measure natural DOM layout positions
                 if (cover) cover.style.transform = "none";
                 if (atem) atem.style.transform = "none";
 
@@ -269,8 +279,6 @@
                         const atemRect = atem.getBoundingClientRect();
                         const scale = atem.naturalWidth ? (atemRect.width / atem.naturalWidth) : 1;
                         const visiblePaddingScaled = atemNaturalTransparentPadding * scale;
-
-                        // Calculate translation + compensate for transparent edge pixels
                         const shift = (gifRight - atemRect.right) + visiblePaddingScaled + ATEM_MANUAL_OFFSET;
                         atem.style.transform = `translateX(${shift}px)`;
                     }
