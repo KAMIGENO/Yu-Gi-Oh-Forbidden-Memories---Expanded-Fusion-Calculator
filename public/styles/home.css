@@ -1,9 +1,27 @@
-/* Project-wide typography, text colors, and font family. */
+/*
+ * ------------------------------------------------------------
+ * FILE: public/styles/home.css
+ * ------------------------------------------------------------
+ *
+ * Project-wide typography, color palette, navigation bar,
+ * section layout, and footer styles for Forbidden Memories.
+ */
+
+
+/*
+ * ------------------------------------------------------------
+ * 1. ROOT VARIABLES & GLOBAL TYPOGRAPHY
+ *
+ * Base font sizes, color variables, and typography defaults.
+ * ------------------------------------------------------------
+ */
+
 :root {
     --black-color: #000000;
     --white-color: #FFFFFF;
     --gray-color: #4E4E4E;
     --primary-font-color: rgb(30, 35, 55);
+    --shared-spacing: 1.07142857rem; /* 18px reference based on 16.8px root */
 }
 
 html {
@@ -11,7 +29,7 @@ html {
 }
 
 body,
-body * ,
+body *,
 body *::before,
 body *::after {
     font-family: Verdana !important;
@@ -40,7 +58,8 @@ h4, .h4 { font-size: 24.192px; }
 h5, .h5 { font-size: 20.16px; }
 h6, .h6 { font-size: 16.8px; }
 
-.text-dark, .text-body {
+.text-dark,
+.text-body {
     color: #000000 !important;
 }
 
@@ -48,9 +67,25 @@ h6, .h6 { font-size: 16.8px; }
     color: #FFFFFF !important;
 }
 
-.text-secondary, .text-muted, .text-black-50 {
+.text-secondary,
+.text-muted,
+.text-black-50 {
     color: #4E4E4E !important;
 }
+
+.text-main,
+.text-subtext {
+    font-family: Verdana !important;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 2. FORM & INPUT CONTROLS
+ *
+ * Input field alignments and micro-adjustments.
+ * ------------------------------------------------------------
+ */
 
 /* Shift text inside text-entry boxes down by exactly 1px without moving the boxes. */
 input[type="text"],
@@ -59,16 +94,62 @@ input:not([type]) {
     padding-bottom: calc(0.375rem - 0.05952381rem);
 }
 
-/* Keep the Bootstrap navbar horizontal on narrow screens so the logo and menu button share one row. */
+
+/*
+ * ------------------------------------------------------------
+ * 3. NAVIGATION BAR
+ *
+ * Layout, 2-row link stacking, and unbroken vertical dividers.
+ * ------------------------------------------------------------
+ */
+
 .navbar {
     flex-direction: row;
 }
 
-.nav-link {
+#logo {
+    height: 5rem;
+}
+
+.navbar-nav {
+    align-items: center;
+}
+
+.navbar-nav .nav-item {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    border-right: 2px solid #212529 !important;
+}
+
+.navbar-nav .nav-item:last-child {
+    border-right: none !important;
+}
+
+.navbar-nav .nav-item::after {
+    content: none !important;
+}
+
+.navbar-nav .nav-link {
     font-weight: 700 !important;
     font-size: 1rem !important;
     text-transform: uppercase !important;
+    text-align: center;
+    line-height: 1.15;
+    padding: 0.35rem 0.85rem !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
+
+
+/*
+ * ------------------------------------------------------------
+ * 4. BACKGROUND THEMES & HERO CONTAINERS
+ *
+ * Page wrappers, hero animations, and artwork backgrounds.
+ * ------------------------------------------------------------
+ */
 
 .polymerization {
     width: 100%;
@@ -79,9 +160,6 @@ input:not([type]) {
     background-size: cover;
 }
 
-/* The calculator's content height changes whenever cards/results change.
-   Anchor its background to the viewport so those changes do not rescale or
-   reposition the artwork. */
 .fusion-calculator-page.polymerization {
     background-repeat: no-repeat;
     background-position: center top;
@@ -89,34 +167,13 @@ input:not([type]) {
     background-attachment: fixed;
 }
 
-#logo {
-    height: 5rem;
-}
-
 .background-vrains {
     width: 100%;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/background.png");
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url("../images/background.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-}
-
-.container-main-fm {
-    background: rgba(0, 0, 0, 0.5);
-}
-
-#container-space {
-    height: 29.76190476rem;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("../images/lost_memories.jpg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    text-shadow: 0.11904762rem 0.11904762rem 0.35714286rem black;
-}
-
-.text-main,
-.text-subtext {
-    font-family: Verdana !important;
 }
 
 .hero-title {
@@ -128,12 +185,41 @@ input:not([type]) {
     100% { transform: translateX(0%); }
 }
 
-#reset-btn { width: 10.71428571rem; }
+#container-space {
+    height: 29.76190476rem;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url("../images/lost_memories.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    text-shadow: 0.11904762rem 0.11904762rem 0.35714286rem black;
+}
 
+
+/*
+ * ------------------------------------------------------------
+ * 5. CONTENT SECTIONS & BUTTON LAYOUT
+ *
+ * Colored section themes and standardized inter-section spacing.
+ * ------------------------------------------------------------
+ */
+
+.img-group {
+    pointer-events: none;
+}
+
+/* Section 1: Main hero container */
+.container-main-fm {
+    background: rgba(0, 0, 0, 0.5);
+    padding-bottom: var(--shared-spacing) !important;
+}
+
+/* Section 2: Fusion Search */
 .container-fusion-search {
     border-top: 0.11904762rem solid black;
     background-color: rgb(244, 244, 245);
     color: var(--primary-font-color);
+    padding-bottom: var(--shared-spacing) !important;
 }
 
 .fusion-search {
@@ -141,25 +227,37 @@ input:not([type]) {
     color: var(--white-color);
 }
 
-.img-group { pointer-events: none; }
-
+/* Section 3: Fusion Calculator */
 .container-fusion-calculator {
     background-color: rgb(255, 134, 82);
     color: rgb(122, 10, 0);
+    margin-bottom: 0 !important;
+    padding-bottom: var(--shared-spacing) !important;
 }
 
-.fusion-calculator { background-color: var(--white-color); }
+.fusion-calculator {
+    background-color: var(--white-color);
+}
 
+/* Section 4: About */
 .container-about {
     background: rgb(30, 35, 55);
     color: var(--white-color);
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: var(--shared-spacing) !important;
+}
+
+.container-about h2 {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
 }
 
 .about-title {
     background-color: var(--white-color);
     color: var(--primary-font-color);
 }
-
 
 .btn-about {
     color: rgb(30, 35, 55);
@@ -171,18 +269,11 @@ input:not([type]) {
     background-color: rgb(237, 139, 121);
 }
 
-.footer-bottom { background-color: var(--black-color); }
-
-.millennium-pendant,
-.gh-logo {
-    height: 1rem;
-    width: 1rem;
-    margin-left: 0.5952381rem;
+#reset-btn {
+    width: 10.71428571rem;
 }
 
-.gh-logo { background-color: #FFFFFF; }
-
-/* The three large content buttons on index.html only. */
+/* The three large content buttons on index.html */
 .index-page-button {
     height: 2.85714286rem;
     display: flex;
@@ -191,10 +282,53 @@ input:not([type]) {
     font-size: 1.25rem !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
+    margin-bottom: 0 !important;
 }
 
+
+/*
+ * ------------------------------------------------------------
+ * 6. FOOTER
+ *
+ * Page footer and icon dimensions.
+ * ------------------------------------------------------------
+ */
+
+footer {
+    margin-top: 0 !important;
+    padding: 0 !important;
+}
+
+.footer-bottom {
+    background-color: var(--black-color);
+    padding-top: var(--shared-spacing) !important;
+    padding-bottom: var(--shared-spacing) !important;
+}
+
+.millennium-pendant,
+.gh-logo {
+    height: 1rem;
+    width: 1rem;
+    margin-left: 0.5952381rem;
+}
+
+.gh-logo {
+    background-color: #FFFFFF;
+}
+
+
+/*
+ * ------------------------------------------------------------
+ * 7. RESPONSIVE MEDIA QUERIES
+ *
+ * Breakpoints for narrow screens and mobile devices.
+ * ------------------------------------------------------------
+ */
+
 @media (max-width: 45.6547619rem) {
-    #container-space { height: 17.85714286rem; }
+    #container-space {
+        height: 17.85714286rem;
+    }
 
     .hero-title {
         text-align: center;
@@ -203,20 +337,18 @@ input:not([type]) {
         margin-right: -0.89285714rem;
     }
 
-    .text-subtext { font-size: 1.2rem; }
-    .footer-bottom { font-size: 1rem; }
+    .text-subtext {
+        font-size: 1.2rem;
+    }
+
+    .footer-bottom {
+        font-size: 1rem;
+    }
 }
 
-/* Separate navigation links with vertical bars. */
-.navbar-nav .nav-item {
-    display: flex;
-    align-items: center;
-}
 
-.navbar-nav .nav-item:not(:last-child)::after {
-    content: "|";
-    display: inline-block;
-    color: #4E4E4E;
-    font-weight: 700;
-    margin: 0 0.35rem;
-}
+/*
+ * ------------------------------------------------------------
+ * END OF FILE
+ * ------------------------------------------------------------
+ */
