@@ -73,11 +73,6 @@ h6, .h6 { font-size: 16.8px; }
     color: #4E4E4E !important;
 }
 
-.text-main,
-.text-subtext {
-    font-family: Verdana !important;
-}
-
 
 /*
  * ------------------------------------------------------------
@@ -97,17 +92,15 @@ input:not([type]) {
 
 /*
  * ------------------------------------------------------------
- * 3. NAVIGATION BAR (APPLIES TO EVERY PAGE)
+ * 3. NAVIGATION BAR
  *
  * Spaced navigation buttons, 2-row link stacking,
- * balanced padding, and unbroken vertical dividers.
+ * and unbroken vertical dividers.
  * ------------------------------------------------------------
  */
 
-header.navbar,
 .navbar {
     flex-direction: row;
-    padding-top: 0 !important;
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
 }
@@ -116,6 +109,7 @@ header.navbar,
     height: 5rem;
 }
 
+/* Each navigation button receives balanced spacing based on text width */
 .navbar-nav {
     display: flex;
     align-items: stretch;
