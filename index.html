@@ -12,35 +12,65 @@
         <link rel="stylesheet" type="text/css" href="public/styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/home.css" />
         <style>
-            /* 1. Eliminate seam / gap between colored sections */
+            /* 1. Eliminate seam / gaps between sections */
             .container-fusion-calculator {
                 margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
             }
             .container-about {
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
                 padding-top: 0 !important;
+                padding-bottom: 0 !important;
             }
 
-            /* 2. Remove space above the "ABOUT" header */
+            /* 2. Top-aligned ABOUT header */
             .container-about h2 {
                 margin-top: 0 !important;
                 padding-top: 0 !important;
             }
 
-            /* 3. Remove space above the "VISIT FUSION CALCULATOR" button */
-            .container-fusion-calculator .col > .d-flex:last-child,
+            /* 3. Flush button bottoms */
             .container-fusion-calculator .index-page-button {
-                margin-top: 0 !important;
+                margin-bottom: 0 !important;
             }
-            .container-fusion-calculator p {
+            .container-about .btn-about {
                 margin-bottom: 0 !important;
             }
 
-            /* 4. Eliminate gap above footer */
+            /* 4. Flush footer */
             footer,
             .footer-bottom {
                 margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+
+            /* 5. Navigation bar: Stacked rows with one unbroken vertical divider */
+            .navbar-nav {
+                align-items: center;
+            }
+            .navbar-nav .nav-item {
+                display: flex;
+                align-items: center;
+                height: 100%;
+                /* Unbroken continuous line across both text rows */
+                border-right: 2px solid #212529 !important;
+            }
+            .navbar-nav .nav-item:last-child {
+                border-right: none !important;
+            }
+            /* Suppress any existing single-line text pipe pseudo-elements */
+            .navbar-nav .nav-item::after {
+                content: none !important;
+            }
+            .navbar-nav .nav-link {
+                text-align: center;
+                line-height: 1.15;
+                padding: 0.35rem 0.85rem !important;
+                font-weight: 700;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
             }
         </style>
     </head>
@@ -67,28 +97,49 @@
                 <span class="navbar-toggler-icon d-md-none p-0 mx-2 collapsed"></span>
             </button>
 
+            <!-- NAVBAR: 2-Row text items separated by unbroken vertical dividers -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="fusion-search.html">Fusion Search</a>
+                        <a class="nav-link text-dark" href="fusion-search.html">
+                            <span>Fusion</span>
+                            <span>Search</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="fusion-calculator.html">Fusion Calculator</a>
+                        <a class="nav-link text-dark" href="fusion-calculator.html">
+                            <span>Fusion</span>
+                            <span>Calculator</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="fusion-stats.html">Fusion Statistics</a>
+                        <a class="nav-link text-dark" href="fusion-stats.html">
+                            <span>Fusion</span>
+                            <span>Statistics</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="glitch-fusions.html">Glitch Fusions</a>
+                        <a class="nav-link text-dark" href="glitch-fusions.html">
+                            <span>Glitch</span>
+                            <span>Fusions</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="equip-stats.html">Equip Statistics</a>
+                        <a class="nav-link text-dark" href="equip-stats.html">
+                            <span>Equip</span>
+                            <span>Statistics</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="field-stats.html">Field Statistics</a>
+                        <a class="nav-link text-dark" href="field-stats.html">
+                            <span>Field</span>
+                            <span>Statistics</span>
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" href="about.html">About</a>
+                        <a class="nav-link text-dark" href="about.html">
+                            <span>About</span>
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -150,22 +201,24 @@
                 </div>
             </section>
 
-            <!-- FUSION CALCULATOR SECTION -->
+            <!-- FUSION CALCULATOR SECTION: Button at bottom touching ABOUT -->
             <section class="row container-fusion-calculator">
-                <div class="col col-lg-5 offset-lg-1 d-flex flex-column">
-                    <h2 class="text-main mb-4">
-                        <span class="fusion-calculator"> FUSION CALCULATOR </span>
-                    </h2>
+                <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
+                    <div>
+                        <h2 class="text-main mb-4">
+                            <span class="fusion-calculator"> FUSION CALCULATOR </span>
+                        </h2>
 
-                    <p class="h3 mt-3 mb-0 text-subtext">
-                        Test your whole hand... or even your whole deck!<br>
-                        You can go even beyond that!<br>
-                        Take your time and figure out your options.<br>
-                    </p>
+                        <p class="h3 my-4 text-subtext">
+                            Test your whole hand... or even your whole deck!<br>
+                            You can go even beyond that!<br>
+                            Take your time and figure out your options.<br>
+                        </p>
+                    </div>
 
-                    <!-- mt-auto changed to mt-0 to remove space above this button -->
-                    <div class="d-flex flex-column flex-md-row mt-0">
-                        <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 mt-0 index-page-button">Visit Fusion Calculator</a>
+                    <!-- mt-auto pushes button to bottom; mx-md-4 keeps original horizontal placement -->
+                    <div class="d-flex flex-column flex-md-row mt-auto mb-0 pb-0">
+                        <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 mb-0 index-page-button">Visit Fusion Calculator</a>
                     </div>
                 </div>
                 <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-flex justify-content-md-end">
@@ -178,18 +231,21 @@
                 </div>
             </section>
 
-            <!-- ABOUT SECTION: pt-0 and mt-0 removes space above the "ABOUT" header -->
+            <!-- ABOUT SECTION: Button touching footer, Kaiba right-aligned to Atem -->
             <section class="row container-about">
-                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0">
-                    <h2 class="text-main mb-4 mt-0 pt-0"><span class="about-title"> ABOUT </span></h2>
+                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
+                    <div>
+                        <h2 class="text-main mb-4 mt-0 pt-0"><span class="about-title"> ABOUT </span></h2>
 
-                    <p class="h3 my-4 text-subtext">
-                        Learn more about the Solumin's 
-                        <strong>Yu-Gi-Oh! Forbidden Memories Fusion Calculator</strong>
-                        project, and how to get involved.
-                    </p>
+                        <p class="h3 my-4 text-subtext">
+                            Learn more about the Solumin's 
+                            <strong>Yu-Gi-Oh! Forbidden Memories Fusion Calculator</strong>
+                            project, and how to get involved.
+                        </p>
+                    </div>
 
-                    <div class="d-flex flex-column flex-md-row">
+                    <!-- mt-auto and mb-0 places button touching the footer -->
+                    <div class="d-flex flex-column flex-md-row mt-auto mb-0 pb-0">
                         <a href="about.html" class="btn btn-lg btn-about mb-0 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
                     </div>
                 </div>
@@ -197,7 +253,7 @@
                     <img
                         loading="lazy"
                         src="public/images/kaiba.png"
-                        class="img-fluid mt-auto mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group"
+                        class="img-fluid mt-auto mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group img-kaiba"
                         alt="kaiba character"
                     />
                 </div>
@@ -242,10 +298,15 @@
         <script type="text/javascript" src="public/javascripts/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="public/javascripts/bootstrap.bundle.min.js"></script>
         <script type="text/javascript">
+            // Manual pixel nudge overrides if desired
             const ATEM_MANUAL_OFFSET = 0;
-            let atemNaturalTransparentPadding = 0;
+            const KAIBA_MANUAL_OFFSET = 0;
 
-            function detectAtemTransparency(img) {
+            let atemNaturalTransparentPadding = 0;
+            let kaibaNaturalTransparentPadding = 0;
+
+            // Automatically detects transparent space to the right of visible character pixels
+            function detectImageTransparency(img, callback) {
                 if (!img || !img.complete || img.naturalWidth === 0) return;
                 try {
                     const canvas = document.createElement("canvas");
@@ -266,10 +327,10 @@
                         }
                     }
                     if (maxX > 0) {
-                        atemNaturalTransparentPadding = (canvas.width - 1) - maxX;
+                        callback((canvas.width - 1) - maxX);
                     }
                 } catch (e) {
-                    // Falls back cleanly if running locally under file:// CORS
+                    // Safe fallback if running locally under file:// CORS
                 }
             }
 
@@ -277,11 +338,13 @@
                 const fusionGif = document.querySelector(".container-fusion-search .img-group");
                 const cover = document.querySelector(".cover-playstation");
                 const atem = document.querySelector(".container-fusion-calculator .img-atem");
+                const kaiba = document.querySelector(".container-about .img-kaiba");
 
                 if (!fusionGif || fusionGif.offsetParent === null) return;
 
                 if (cover) cover.style.transform = "none";
                 if (atem) atem.style.transform = "none";
+                if (kaiba) kaiba.style.transform = "none";
 
                 requestAnimationFrame(() => {
                     const gifRight = fusionGif.getBoundingClientRect().right;
@@ -295,10 +358,19 @@
                     // 2. Align Atem's right-most pixel to the GIF's right-most pixel
                     if (atem && atem.offsetParent !== null) {
                         const atemRect = atem.getBoundingClientRect();
-                        const scale = atem.naturalWidth ? (atemRect.width / atem.naturalWidth) : 1;
-                        const visiblePaddingScaled = atemNaturalTransparentPadding * scale;
-                        const shift = (gifRight - atemRect.right) + visiblePaddingScaled + ATEM_MANUAL_OFFSET;
-                        atem.style.transform = `translateX(${shift}px)`;
+                        const scaleA = atem.naturalWidth ? (atemRect.width / atem.naturalWidth) : 1;
+                        const visiblePaddingScaledA = atemNaturalTransparentPadding * scaleA;
+                        const shiftA = (gifRight - atemRect.right) + visiblePaddingScaledA + ATEM_MANUAL_OFFSET;
+                        atem.style.transform = `translateX(${shiftA}px)`;
+                    }
+
+                    // 3. Align Kaiba's right-most pixel to Atem's right-most pixel (gifRight)
+                    if (kaiba && kaiba.offsetParent !== null) {
+                        const kaibaRect = kaiba.getBoundingClientRect();
+                        const scaleK = kaiba.naturalWidth ? (kaibaRect.width / kaiba.naturalWidth) : 1;
+                        const visiblePaddingScaledK = kaibaNaturalTransparentPadding * scaleK;
+                        const shiftK = (gifRight - kaibaRect.right) + visiblePaddingScaledK + KAIBA_MANUAL_OFFSET;
+                        kaiba.style.transform = `translateX(${shiftK}px)`;
                     }
                 });
             }
@@ -310,7 +382,9 @@
 
             window.addEventListener("load", () => {
                 const atemImg = document.querySelector(".container-fusion-calculator .img-atem");
-                if (atemImg) detectAtemTransparency(atemImg);
+                const kaibaImg = document.querySelector(".container-about .img-kaiba");
+                if (atemImg) detectImageTransparency(atemImg, val => { atemNaturalTransparentPadding = val; });
+                if (kaibaImg) detectImageTransparency(kaibaImg, val => { kaibaNaturalTransparentPadding = val; });
                 scheduleAlignment();
             });
 
@@ -318,12 +392,19 @@
 
             const fusionGif = document.querySelector(".container-fusion-search .img-group");
             const atemImg = document.querySelector(".container-fusion-calculator .img-atem");
+            const kaibaImg = document.querySelector(".container-about .img-kaiba");
             const coverImg = document.querySelector(".cover-playstation");
 
             if (fusionGif) fusionGif.addEventListener("load", scheduleAlignment);
             if (atemImg) {
                 atemImg.addEventListener("load", () => {
-                    detectAtemTransparency(atemImg);
+                    detectImageTransparency(atemImg, val => { atemNaturalTransparentPadding = val; });
+                    scheduleAlignment();
+                });
+            }
+            if (kaibaImg) {
+                kaibaImg.addEventListener("load", () => {
+                    detectImageTransparency(kaibaImg, val => { kaibaNaturalTransparentPadding = val; });
                     scheduleAlignment();
                 });
             }
@@ -333,6 +414,7 @@
                 if (fusionGif) alignmentObserver.observe(fusionGif);
                 if (coverImg) alignmentObserver.observe(coverImg);
                 if (atemImg) alignmentObserver.observe(atemImg);
+                if (kaibaImg) alignmentObserver.observe(kaibaImg);
             }
         </script>
     </body>
