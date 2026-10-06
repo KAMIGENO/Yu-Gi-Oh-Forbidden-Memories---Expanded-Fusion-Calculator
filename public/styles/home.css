@@ -210,7 +210,7 @@ input:not([type]) {
  * ------------------------------------------------------------
  * 5. CONTENT SECTIONS & BUTTON LAYOUT
  *
- * Section themes, top-header padding, and flush bottom edges.
+ * Section themes, top-header padding, and bottom button spacing.
  * ------------------------------------------------------------
  */
 
@@ -218,26 +218,28 @@ input:not([type]) {
     pointer-events: none;
 }
 
-/* Section 1: Main hero container (no space under cover image) */
+/* Section 1: Main hero container (no space above or below cover image) */
 .container-main-fm {
     background: rgba(0, 0, 0, 0.5);
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
+    padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
 
 .cover-playstation {
     display: block;
-    vertical-align: bottom;
+    margin-top: 0 !important;
     margin-bottom: 0 !important;
 }
 
-/* Section 2: Fusion Search (white space above text and GIF; flush bottom) */
+/* Section 2: Fusion Search (white space above text and GIF; spacing below button) */
 .container-fusion-search {
     border-top: 0.11904762rem solid black;
     background-color: rgb(244, 244, 245);
     color: var(--primary-font-color);
     padding-top: var(--shared-spacing) !important;
-    padding-bottom: 0 !important;
+    padding-bottom: var(--shared-spacing) !important;
     margin-bottom: 0 !important;
 }
 
@@ -246,12 +248,12 @@ input:not([type]) {
     color: var(--white-color);
 }
 
-/* Section 3: Fusion Calculator (orange space above text and Atem; flush bottom) */
+/* Section 3: Fusion Calculator (orange space above text and Atem; spacing below button) */
 .container-fusion-calculator {
     background-color: rgb(255, 134, 82);
     color: rgb(122, 10, 0);
     padding-top: var(--shared-spacing) !important;
-    padding-bottom: 0 !important;
+    padding-bottom: var(--shared-spacing) !important;
     margin-bottom: 0 !important;
 }
 
@@ -259,14 +261,14 @@ input:not([type]) {
     background-color: var(--white-color);
 }
 
-/* Section 4: About (dark blue space above text and Kaiba; flush bottom touching footer) */
+/* Section 4: About (dark blue space above text and Kaiba; spacing below button) */
 .container-about {
     background: rgb(30, 35, 55);
     color: var(--white-color);
     margin-top: 0 !important;
     margin-bottom: 0 !important;
     padding-top: var(--shared-spacing) !important;
-    padding-bottom: 0 !important;
+    padding-bottom: var(--shared-spacing) !important;
 }
 
 /* Section titles flush with section top padding */
@@ -296,7 +298,7 @@ input:not([type]) {
     width: 10.71428571rem;
 }
 
-/* Bottom elements flush to section bottom, top flush to top */
+/* Artwork flush to top of their section */
 .container-fusion-search .img-group,
 .container-fusion-calculator .img-atem,
 .container-about .img-kaiba {
