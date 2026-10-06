@@ -16,7 +16,7 @@
                 --shared-spacing: 1.07142857rem; /* 18px reference */
             }
 
-            /* Image 1: No space between navigation buttons and cover image, and no space under cover image */
+            /* Image 1: No space between navigation buttons and cover image */
             header.navbar {
                 padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
@@ -37,36 +37,36 @@
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
                 display: block;
-                vertical-align: bottom;
+                vertical-align: top;
             }
 
-            /* Image 2: White space above "FUSION SEARCH" text and GIF */
+            /* Image 2: White space below "VISIT FUSION SEARCH" button and GIF */
             .container-fusion-search {
                 border-top: 0.11904762rem solid black;
                 background-color: rgb(244, 244, 245);
                 color: var(--primary-font-color);
-                padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem */
+            /* Image 3: R255 G134 B082 orange space below "VISIT FUSION CALCULATOR" button and Atem */
             .container-fusion-calculator {
                 background-color: rgb(255, 134, 82);
                 color: rgb(122, 10, 0);
-                padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba */
+            /* Image 4: R30 G35 B55 dark blue space below "READ THE ABOUT" button and Kaiba */
             .container-about {
                 background: rgb(30, 35, 55);
                 color: var(--white-color);
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
-                padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-top: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
             }
 
             /* Section headers flush to top of their section */
@@ -77,7 +77,7 @@
                 padding-top: 0 !important;
             }
 
-            /* Artwork flush to top of their section */
+            /* Artwork flush to bottom of their section above the padding */
             .container-fusion-search .img-group,
             .container-fusion-calculator .img-atem,
             .container-about .img-kaiba {
@@ -224,7 +224,7 @@
                         new features with "stylized" information.
                     </p>
                 </div>
-                <div class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 d-flex justify-content-center align-self-end order-md-2 order-lg-2 m-0 p-0">
+                <div class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 d-flex justify-content-center align-self-start order-md-2 order-lg-2 m-0 p-0">
                     <img
                         src="public/images/cover_playstation.webp"
                         class="img-fluid cover-playstation d-none d-sm-block m-0 p-0"
@@ -233,7 +233,7 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: White space above "FUSION SEARCH" text and GIF -->
+            <!-- SECTION 2: White space below "VISIT FUSION SEARCH" button and GIF -->
             <section class="row container-fusion-search">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -253,17 +253,17 @@
                         <a href="fusion-search.html" class="btn btn-lg btn-dark mx-md-4 mb-0 index-page-button">Visit Fusion Search</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-block align-self-start pt-0 mt-0 pb-0 mb-0">
+                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-block align-self-end pb-0 mb-0">
                     <img
                         loading="lazy"
                         src="public/images/fusion.gif"
-                        class="img-fluid d-none d-sm-none d-md-block img-group mt-0 mb-0"
+                        class="img-fluid d-none d-sm-none d-md-block img-group mb-0"
                         alt="fusion cards"
                     />
                 </div>
             </section>
 
-            <!-- SECTION 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem -->
+            <!-- SECTION 3: R255 G134 B082 orange space below "VISIT FUSION CALCULATOR" button and Atem -->
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -282,17 +282,17 @@
                         <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 mb-0 index-page-button">Visit Fusion Calculator</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-flex justify-content-md-end align-self-start pt-0 mt-0 pb-0 mb-0">
+                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-flex justify-content-md-end align-self-end pb-0 mb-0">
                     <img
                         loading="lazy"
                         src="public/images/atem.png"
-                        class="img-fluid d-none d-sm-none d-md-block img-group img-atem mt-0 mb-0"
+                        class="img-fluid d-none d-sm-none d-md-block img-group img-atem mb-0"
                         alt="atem character"
                     />
                 </div>
             </section>
 
-            <!-- SECTION 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba -->
+            <!-- SECTION 4: R30 G35 B55 dark blue space below "READ THE ABOUT" button and Kaiba -->
             <section class="row container-about">
                 <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
                     <div>
@@ -309,11 +309,11 @@
                         <a href="about.html" class="btn btn-lg btn-about mb-0 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-none d-sm-none d-md-block align-self-start">
+                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-none d-sm-none d-md-block align-self-end">
                     <img
                         loading="lazy"
                         src="public/images/kaiba.png"
-                        class="img-fluid mt-0 mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group img-kaiba"
+                        class="img-fluid mt-auto mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group img-kaiba"
                         alt="kaiba character"
                     />
                 </div>
