@@ -16,7 +16,7 @@
                 --shared-spacing: 1.07142857rem; /* 18px reference */
             }
 
-            /* Image 1: No space between navigation buttons and cover image, and no space under cover image */
+            /* Image 1: No space between navigation buttons and cover image */
             header.navbar {
                 padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
@@ -39,33 +39,33 @@
                 display: block;
             }
 
-            /* Image 2: White space above "FUSION SEARCH" text and GIF */
+            /* Image 1: White space above "FUSION SEARCH" text and GIF; spacing below button */
             .container-fusion-search {
                 border-top: 0.11904762rem solid black;
                 background-color: rgb(244, 244, 245);
                 color: var(--primary-font-color);
                 padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem */
+            /* Image 2: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem; spacing below button */
             .container-fusion-calculator {
                 background-color: rgb(255, 134, 82);
                 color: rgb(122, 10, 0);
                 padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba */
+            /* Image 3: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba; spacing below button */
             .container-about {
                 background: rgb(30, 35, 55);
                 color: var(--white-color);
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
                 padding-top: var(--shared-spacing) !important;
-                padding-bottom: 0 !important;
+                padding-bottom: var(--shared-spacing) !important;
             }
 
             /* Section headers flush to top of their section */
@@ -203,7 +203,7 @@
         </header>
 
         <main class="container-fluid background-vrains pt-0 mt-0">
-            <!-- SECTION 1: Cover image flush with navbar at the top and flush at bottom -->
+            <!-- SECTION 1: Cover image flush with navbar at the top -->
             <section class="row container-main-fm pt-0 mt-0 pb-0 mb-0">
                 <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 my-auto py-3">
                     <h1 class="text-main my-3 text-white hero-title index-page-title">Yu-Gi-Oh! Forbidden Memories</h1>
@@ -231,7 +231,7 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: White space above "FUSION SEARCH" text and GIF -->
+            <!-- SECTION 2: White space above "FUSION SEARCH" text and GIF; spacing below button -->
             <section class="row container-fusion-search">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -261,7 +261,7 @@
                 </div>
             </section>
 
-            <!-- SECTION 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem -->
+            <!-- SECTION 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem; spacing below button -->
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -290,7 +290,7 @@
                 </div>
             </section>
 
-            <!-- SECTION 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba -->
+            <!-- SECTION 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba; spacing below button -->
             <section class="row container-about">
                 <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
                     <div>
