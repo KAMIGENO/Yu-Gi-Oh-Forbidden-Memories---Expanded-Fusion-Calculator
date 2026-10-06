@@ -99,7 +99,7 @@ input:not([type]) {
  * ------------------------------------------------------------
  * 3. NAVIGATION BAR
  *
- * Equal spacing between navigation buttons, 2-row link stacking,
+ * Spaced navigation buttons, 2-row link stacking,
  * and unbroken vertical dividers.
  * ------------------------------------------------------------
  */
@@ -119,13 +119,13 @@ input:not([type]) {
     align-items: center;
 }
 
-/* Each navigation button receives equal width and spacing */
+/* Each navigation button receives equal width with comfortable horizontal padding */
 .navbar-nav .nav-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1 1 8.25rem;
-    min-width: 8.25rem;
+    flex: 1 1 9.5rem;
+    min-width: 9.5rem;
     height: 100%;
     border-right: 2px solid #212529 !important;
 }
@@ -145,7 +145,7 @@ input:not([type]) {
     text-transform: uppercase !important;
     text-align: center;
     line-height: 1.15;
-    padding: 0.35rem 0.5rem !important;
+    padding: 0.35rem 1.1rem !important;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -210,7 +210,7 @@ input:not([type]) {
  * ------------------------------------------------------------
  * 5. CONTENT SECTIONS & BUTTON LAYOUT
  *
- * Section themes, flush cover placement, and below-button spacing.
+ * Section themes, top-header padding, and flush bottom edges.
  * ------------------------------------------------------------
  */
 
@@ -218,27 +218,26 @@ input:not([type]) {
     pointer-events: none;
 }
 
-/* Section 1: Main hero container (no space above or below cover image) */
+/* Section 1: Main hero container (no space under cover image) */
 .container-main-fm {
     background: rgba(0, 0, 0, 0.5);
-    margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding-top: 0 !important;
     padding-bottom: 0 !important;
 }
 
 .cover-playstation {
-    margin-top: 0 !important;
+    display: block;
+    vertical-align: bottom;
     margin-bottom: 0 !important;
 }
 
-/* Section 2: Fusion Search (spacing below the button) */
+/* Section 2: Fusion Search (white space above text and GIF; flush bottom) */
 .container-fusion-search {
     border-top: 0.11904762rem solid black;
     background-color: rgb(244, 244, 245);
     color: var(--primary-font-color);
-    padding-top: 0 !important;
-    padding-bottom: var(--shared-spacing) !important;
+    padding-top: var(--shared-spacing) !important;
+    padding-bottom: 0 !important;
     margin-bottom: 0 !important;
 }
 
@@ -247,12 +246,12 @@ input:not([type]) {
     color: var(--white-color);
 }
 
-/* Section 3: Fusion Calculator (spacing below the button) */
+/* Section 3: Fusion Calculator (orange space above text and Atem; flush bottom) */
 .container-fusion-calculator {
     background-color: rgb(255, 134, 82);
     color: rgb(122, 10, 0);
-    padding-top: 0 !important;
-    padding-bottom: var(--shared-spacing) !important;
+    padding-top: var(--shared-spacing) !important;
+    padding-bottom: 0 !important;
     margin-bottom: 0 !important;
 }
 
@@ -260,17 +259,17 @@ input:not([type]) {
     background-color: var(--white-color);
 }
 
-/* Section 4: About (spacing below the button before footer) */
+/* Section 4: About (dark blue space above text and Kaiba; flush bottom touching footer) */
 .container-about {
     background: rgb(30, 35, 55);
     color: var(--white-color);
     margin-top: 0 !important;
     margin-bottom: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: var(--shared-spacing) !important;
+    padding-top: var(--shared-spacing) !important;
+    padding-bottom: 0 !important;
 }
 
-/* Section titles flush with section top */
+/* Section titles flush with section top padding */
 .container-fusion-search h2,
 .container-fusion-calculator h2,
 .container-about h2 {
@@ -295,6 +294,14 @@ input:not([type]) {
 
 #reset-btn {
     width: 10.71428571rem;
+}
+
+/* Bottom elements flush to section bottom, top flush to top */
+.container-fusion-search .img-group,
+.container-fusion-calculator .img-atem,
+.container-about .img-kaiba {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 /* The three large content buttons on index.html */
