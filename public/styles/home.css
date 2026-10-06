@@ -114,18 +114,17 @@ input:not([type]) {
     height: 5rem;
 }
 
+/* Each navigation button receives balanced spacing based on text width */
 .navbar-nav {
     display: flex;
-    align-items: center;
+    align-items: stretch;
 }
 
-/* Each navigation button receives equal width with comfortable horizontal padding */
 .navbar-nav .nav-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1 1 9.5rem;
-    min-width: 9.5rem;
+    flex: 0 0 auto;
     height: 100%;
     border-right: 2px solid #212529 !important;
 }
@@ -139,7 +138,6 @@ input:not([type]) {
 }
 
 .navbar-nav .nav-link {
-    width: 100%;
     font-weight: 700 !important;
     font-size: 1rem !important;
     text-transform: uppercase !important;
@@ -150,6 +148,7 @@ input:not([type]) {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    white-space: nowrap;
 }
 
 
@@ -210,7 +209,7 @@ input:not([type]) {
  * ------------------------------------------------------------
  * 5. CONTENT SECTIONS & BUTTON LAYOUT
  *
- * Section themes, top-header padding, and bottom button spacing.
+ * Section themes, top-header padding, and flush bottom edges.
  * ------------------------------------------------------------
  */
 
@@ -231,6 +230,10 @@ input:not([type]) {
     display: block;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
+}
+
+.index-page-title {
+    white-space: nowrap;
 }
 
 /* Section 2: Fusion Search (white space above text and GIF; spacing below button) */
@@ -298,7 +301,7 @@ input:not([type]) {
     width: 10.71428571rem;
 }
 
-/* Artwork flush to top of their section */
+/* Bottom elements flush to section bottom */
 .container-fusion-search .img-group,
 .container-fusion-calculator .img-atem,
 .container-about .img-kaiba {
