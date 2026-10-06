@@ -12,15 +12,32 @@
         <link rel="stylesheet" type="text/css" href="public/styles/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="public/styles/home.css" />
         <style>
-            /* Eliminate color gap between Fusion Calculator (orange) and About (dark blue) */
+            /* 1. Eliminate seam / gap between colored sections */
             .container-fusion-calculator {
                 margin-bottom: 0 !important;
             }
             .container-about {
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
+                padding-top: 0 !important;
             }
-            /* Eliminate gap between About section and footer */
+
+            /* 2. Remove space above the "ABOUT" header */
+            .container-about h2 {
+                margin-top: 0 !important;
+                padding-top: 0 !important;
+            }
+
+            /* 3. Remove space above the "VISIT FUSION CALCULATOR" button */
+            .container-fusion-calculator .col > .d-flex:last-child,
+            .container-fusion-calculator .index-page-button {
+                margin-top: 0 !important;
+            }
+            .container-fusion-calculator p {
+                margin-bottom: 0 !important;
+            }
+
+            /* 4. Eliminate gap above footer */
             footer,
             .footer-bottom {
                 margin-top: 0 !important;
@@ -133,20 +150,22 @@
                 </div>
             </section>
 
+            <!-- FUSION CALCULATOR SECTION -->
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column">
                     <h2 class="text-main mb-4">
                         <span class="fusion-calculator"> FUSION CALCULATOR </span>
                     </h2>
 
-                    <p class="h3 my-5 text-subtext">
+                    <p class="h3 mt-3 mb-0 text-subtext">
                         Test your whole hand... or even your whole deck!<br>
                         You can go even beyond that!<br>
                         Take your time and figure out your options.<br>
                     </p>
 
-                    <div class="d-flex flex-column flex-md-row mt-auto">
-                        <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 index-page-button">Visit Fusion Calculator</a>
+                    <!-- mt-auto changed to mt-0 to remove space above this button -->
+                    <div class="d-flex flex-column flex-md-row mt-0">
+                        <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 mt-0 index-page-button">Visit Fusion Calculator</a>
                     </div>
                 </div>
                 <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-flex justify-content-md-end">
@@ -159,10 +178,10 @@
                 </div>
             </section>
 
-            <!-- ABOUT SECTION: Margins zeroed out to eliminate gaps -->
+            <!-- ABOUT SECTION: pt-0 and mt-0 removes space above the "ABOUT" header -->
             <section class="row container-about">
-                <div class="col col-lg-5 offset-lg-1 pt-4 pb-0 my-0">
-                    <h2 class="text-main mb-4 mt-0"><span class="about-title"> ABOUT </span></h2>
+                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0">
+                    <h2 class="text-main mb-4 mt-0 pt-0"><span class="about-title"> ABOUT </span></h2>
 
                     <p class="h3 my-4 text-subtext">
                         Learn more about the Solumin's 
@@ -174,7 +193,7 @@
                         <a href="about.html" class="btn btn-lg btn-about mb-0 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 pt-4 pb-0 my-0 d-none d-sm-none d-md-block align-self-end">
+                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-none d-sm-none d-md-block align-self-end">
                     <img
                         loading="lazy"
                         src="public/images/kaiba.png"
@@ -185,7 +204,6 @@
             </section>
         </main>
 
-        <!-- FOOTER: Flush with the About section -->
         <footer class="container-fluid mt-0 p-0">
             <div class="row footer-bottom m-0">
                 <div class="col text-center py-2 my-0">
