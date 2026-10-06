@@ -16,7 +16,7 @@
                 --shared-spacing: 1.07142857rem; /* 18px reference */
             }
 
-            /* Image 1: No space between navigation buttons and cover image */
+            /* Image 1: No space between navigation buttons and cover image, and no space under cover image */
             header.navbar {
                 padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
@@ -37,36 +37,35 @@
                 padding-top: 0 !important;
                 padding-bottom: 0 !important;
                 display: block;
-                vertical-align: top;
             }
 
-            /* Image 2: White space below "VISIT FUSION SEARCH" button and GIF */
+            /* Image 2: White space above "FUSION SEARCH" text and GIF */
             .container-fusion-search {
                 border-top: 0.11904762rem solid black;
                 background-color: rgb(244, 244, 245);
                 color: var(--primary-font-color);
-                padding-top: 0 !important;
-                padding-bottom: var(--shared-spacing) !important;
+                padding-top: var(--shared-spacing) !important;
+                padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 3: R255 G134 B082 orange space below "VISIT FUSION CALCULATOR" button and Atem */
+            /* Image 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem */
             .container-fusion-calculator {
                 background-color: rgb(255, 134, 82);
                 color: rgb(122, 10, 0);
-                padding-top: 0 !important;
-                padding-bottom: var(--shared-spacing) !important;
+                padding-top: var(--shared-spacing) !important;
+                padding-bottom: 0 !important;
                 margin-bottom: 0 !important;
             }
 
-            /* Image 4: R30 G35 B55 dark blue space below "READ THE ABOUT" button and Kaiba */
+            /* Image 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba */
             .container-about {
                 background: rgb(30, 35, 55);
                 color: var(--white-color);
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
-                padding-top: 0 !important;
-                padding-bottom: var(--shared-spacing) !important;
+                padding-top: var(--shared-spacing) !important;
+                padding-bottom: 0 !important;
             }
 
             /* Section headers flush to top of their section */
@@ -77,7 +76,7 @@
                 padding-top: 0 !important;
             }
 
-            /* Artwork flush to bottom of their section above the padding */
+            /* Artwork flush to top of their section */
             .container-fusion-search .img-group,
             .container-fusion-calculator .img-atem,
             .container-about .img-kaiba {
@@ -204,20 +203,19 @@
         </header>
 
         <main class="container-fluid background-vrains pt-0 mt-0">
-            <!-- SECTION 1: Cover image flush with navbar at the top -->
+            <!-- SECTION 1: Cover image flush with navbar at the top and flush at bottom -->
             <section class="row container-main-fm pt-0 mt-0 pb-0 mb-0">
-                <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 my-4">
-                    <h1 class="text-main my-4 text-white hero-title index-page-title">Yu-Gi-Oh! Forbidden Memories</h1>
-                    <h2 class="text-main my-4 text-white hero-title">Fusion Calculator and More!</h2>
-                    <p class="my-4 text-subtext text-white">
-                        <br>
+                <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 my-auto py-3">
+                    <h1 class="text-main my-3 text-white hero-title index-page-title">Yu-Gi-Oh! Forbidden Memories</h1>
+                    <h2 class="text-main my-3 text-white hero-title">Fusion Calculator and More!</h2>
+                    <p class="my-3 text-subtext text-white">
                         <strong>Yu-Gi-Oh! Forbidden Memories</strong> is a terrible game with an
                         AWESOME mechanic known as "fusions".<br>
                         Fusions allow players to mash cards together in an effort to create
                         powerful cards.
                     </p>
 
-                    <p class="text-subtext text-white">
+                    <p class="text-subtext text-white mb-0">
                         Solumin and co. have created a <a href="https://github.com/Solumin/YGO-FM-FusionCalc" target="_blank" rel="noopener noreferrer">powerful Fusion Calculator</a>!<br>
                         <a href="https://www.twitch.tv/KAMIGENO" target="_blank" rel="noopener noreferrer">KAMIGENO</a> has expanded on this GREATLY...
                         including fixing up this site... correcting some errors... and adding lots of
@@ -233,7 +231,7 @@
                 </div>
             </section>
 
-            <!-- SECTION 2: White space below "VISIT FUSION SEARCH" button and GIF -->
+            <!-- SECTION 2: White space above "FUSION SEARCH" text and GIF -->
             <section class="row container-fusion-search">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -253,17 +251,17 @@
                         <a href="fusion-search.html" class="btn btn-lg btn-dark mx-md-4 mb-0 index-page-button">Visit Fusion Search</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-block align-self-end pb-0 mb-0">
+                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-block align-self-start pt-0 mt-0 pb-0 mb-0">
                     <img
                         loading="lazy"
                         src="public/images/fusion.gif"
-                        class="img-fluid d-none d-sm-none d-md-block img-group mb-0"
+                        class="img-fluid d-none d-sm-none d-md-block img-group mt-0 mb-0"
                         alt="fusion cards"
                     />
                 </div>
             </section>
 
-            <!-- SECTION 3: R255 G134 B082 orange space below "VISIT FUSION CALCULATOR" button and Atem -->
+            <!-- SECTION 3: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem -->
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <div>
@@ -282,17 +280,17 @@
                         <a href="fusion-calculator.html" class="btn btn-lg btn-light mx-md-4 mb-0 index-page-button">Visit Fusion Calculator</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-flex justify-content-md-end align-self-end pb-0 mb-0">
+                <div class="col col-lg-5 offset-lg-1 d-none d-sm-none d-md-flex justify-content-md-end align-self-start pt-0 mt-0 pb-0 mb-0">
                     <img
                         loading="lazy"
                         src="public/images/atem.png"
-                        class="img-fluid d-none d-sm-none d-md-block img-group img-atem mb-0"
+                        class="img-fluid d-none d-sm-none d-md-block img-group img-atem mt-0 mb-0"
                         alt="atem character"
                     />
                 </div>
             </section>
 
-            <!-- SECTION 4: R30 G35 B55 dark blue space below "READ THE ABOUT" button and Kaiba -->
+            <!-- SECTION 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba -->
             <section class="row container-about">
                 <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
                     <div>
@@ -309,11 +307,11 @@
                         <a href="about.html" class="btn btn-lg btn-about mb-0 mx-md-4 index-page-button">READ THE ABOUT SECTION</a>
                     </div>
                 </div>
-                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-none d-sm-none d-md-block align-self-end">
+                <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-none d-sm-none d-md-block align-self-start">
                     <img
                         loading="lazy"
                         src="public/images/kaiba.png"
-                        class="img-fluid mt-auto mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group img-kaiba"
+                        class="img-fluid mt-0 mb-0 ml-auto d-none d-sm-none d-md-block d-flex img-group img-kaiba"
                         alt="kaiba character"
                     />
                 </div>
