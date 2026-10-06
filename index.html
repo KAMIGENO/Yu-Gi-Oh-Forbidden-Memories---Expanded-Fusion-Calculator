@@ -39,7 +39,7 @@
                 display: block;
             }
 
-            /* Image 1: White space above "FUSION SEARCH" text and GIF; spacing below button */
+            /* White space above "FUSION SEARCH" text and GIF; spacing below button */
             .container-fusion-search {
                 border-top: 0.11904762rem solid black;
                 background-color: rgb(244, 244, 245);
@@ -49,7 +49,7 @@
                 margin-bottom: 0 !important;
             }
 
-            /* Image 2: R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem; spacing below button */
+            /* R255 G134 B082 orange space above "FUSION CALCULATOR" text and Atem; spacing below button */
             .container-fusion-calculator {
                 background-color: rgb(255, 134, 82);
                 color: rgb(122, 10, 0);
@@ -58,7 +58,7 @@
                 margin-bottom: 0 !important;
             }
 
-            /* Image 3: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba; spacing below button */
+            /* R30 G35 B55 dark blue space above "ABOUT" text and Kaiba; spacing below button */
             .container-about {
                 background: rgb(30, 35, 55);
                 color: var(--white-color);
@@ -99,17 +99,16 @@
                 padding-bottom: var(--shared-spacing) !important;
             }
 
-            /* Image 5: Slightly more spacing between buttons */
+            /* Navigation buttons: balanced spacing based on text width across every page */
             .navbar-nav {
                 display: flex;
-                align-items: center;
+                align-items: stretch;
             }
             .navbar-nav .nav-item {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                flex: 1 1 9.5rem;
-                min-width: 9.5rem;
+                flex: 0 0 auto;
                 height: 100%;
                 border-right: 2px solid #212529 !important;
             }
@@ -120,7 +119,6 @@
                 content: none !important;
             }
             .navbar-nav .nav-link {
-                width: 100%;
                 text-align: center;
                 line-height: 1.15;
                 padding: 0.35rem 1.1rem !important;
@@ -129,6 +127,7 @@
                 flex-direction: column;
                 justify-content: center;
                 align-items: center;
+                white-space: nowrap;
             }
         </style>
     </head>
@@ -205,23 +204,30 @@
         <main class="container-fluid background-vrains pt-0 mt-0">
             <!-- SECTION 1: Cover image flush with navbar at the top -->
             <section class="row container-main-fm pt-0 mt-0 pb-0 mb-0">
-                <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 d-flex flex-column justify-content-center py-3 my-0">
-                    <h1 class="text-main mt-0 mb-3 text-white hero-title index-page-title text-nowrap" style="white-space: nowrap;">Yu-Gi-Oh! Forbidden Memories</h1>
-                    <h2 class="text-main mt-0 mb-4 text-white hero-title">Fusion Calculator and More!</h2>
+                <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 order-lg-1 d-flex flex-column justify-content-between pt-3 pb-3 my-0">
+                    <div>
+                        <h1 class="text-main mt-0 mb-0 text-white hero-title index-page-title text-nowrap" style="white-space: nowrap;">Yu-Gi-Oh! Forbidden Memories</h1>
+                    </div>
 
-                    <p class="mb-3 text-subtext text-white">
-                        <strong>Yu-Gi-Oh! Forbidden Memories</strong> is a terrible game with an
-                        AWESOME mechanic known as "fusions".<br>
-                        Fusions allow players to mash cards together in an effort to create
-                        powerful cards.
-                    </p>
+                    <div>
+                        <h2 class="text-main my-0 text-white hero-title">Fusion Calculator and More!</h2>
+                    </div>
 
-                    <p class="text-subtext text-white mb-0">
-                        Solumin and co. have created a <a href="https://github.com/Solumin/YGO-FM-FusionCalc" target="_blank" rel="noopener noreferrer">powerful Fusion Calculator</a>!<br>
-                        <a href="https://www.twitch.tv/KAMIGENO" target="_blank" rel="noopener noreferrer">KAMIGENO</a> has expanded on this GREATLY...
-                        including fixing up this site... correcting some errors... and adding lots of
-                        new features with "stylized" information.
-                    </p>
+                    <div class="mb-0">
+                        <p class="mb-3 text-subtext text-white">
+                            <strong>Yu-Gi-Oh! Forbidden Memories</strong> is a terrible game with an
+                            AWESOME mechanic known as "fusions".<br>
+                            Fusions allow players to mash cards together in an effort to create
+                            powerful cards.
+                        </p>
+
+                        <p class="text-subtext text-white mb-0">
+                            Solumin and co. have created a <a href="https://github.com/Solumin/YGO-FM-FusionCalc" target="_blank" rel="noopener noreferrer">powerful Fusion Calculator</a>!<br>
+                            <a href="https://www.twitch.tv/KAMIGENO" target="_blank" rel="noopener noreferrer">KAMIGENO</a> has expanded on this GREATLY...
+                            including fixing up this site... correcting some errors... and adding lots of
+                            new features with "stylized" information.
+                        </p>
+                    </div>
                 </div>
                 <div class="col-md-11 offset-md-1 col-lg-5 offset-lg-1 d-flex justify-content-center align-self-start order-md-2 order-lg-2 m-0 p-0">
                     <img
