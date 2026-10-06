@@ -1,11 +1,3 @@
-<!--
- * ------------------------------------------------------------
- * FILE: equip-stats.html
- * ------------------------------------------------------------
- *
- * Equip statistics page displaying compatibility lists and stats between monsters and equipment cards.
- * ------------------------------------------------------------
--->
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -52,15 +44,7 @@
 
     <body class="bg-dark d-flex flex-column min-vh-100 polymerization">
 
-        <!--
-         * ------------------------------------------------------------
-         * 1. NAVIGATION BAR
-         *
-         * Standardized header navigation matching index.html.
-         * ------------------------------------------------------------
-        -->
         <header class="navbar navbar-expand-lg navbar-light bg-light">
-            <!-- Brand Logo -->
             <a class="navbar-brand text-truncate" href="index.html">
                 <img
                     class="img-fluid ml-4"
@@ -69,8 +53,6 @@
                     alt="Yu-Gi-Oh! Forbidden Memories Logo"
                 />
             </a>
-
-            <!-- Mobile Navbar Toggler Button -->
             <button
                 class="navbar-toggler"
                 type="button"
@@ -83,58 +65,44 @@
                 <span class="navbar-toggler-icon d-md-none p-0 mx-2 collapsed"></span>
             </button>
 
-            <!-- Navigation Links (Stacked 2-line labels with vertical dividers) -->
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav ml-auto">
-                    <!-- Link: Fusion Search -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="fusion-search.html">
                             <span>Fusion</span>
                             <span>Search</span>
                         </a>
                     </li>
-
-                    <!-- Link: Fusion Calculator -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="fusion-calculator.html">
                             <span>Fusion</span>
                             <span>Calculator</span>
                         </a>
                     </li>
-
-                    <!-- Link: Fusion Statistics -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="fusion-stats.html">
                             <span>Fusion</span>
                             <span>Statistics</span>
                         </a>
                     </li>
-
-                    <!-- Link: Glitch Fusions -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="glitch-fusions.html">
                             <span>Glitch</span>
                             <span>Fusions</span>
                         </a>
                     </li>
-
-                    <!-- Link: Equip Statistics -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="equip-stats.html">
                             <span>Equip</span>
                             <span>Statistics</span>
                         </a>
                     </li>
-
-                    <!-- Link: Field Statistics -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="field-stats.html">
                             <span>Field</span>
                             <span>Statistics</span>
                         </a>
                     </li>
-
-                    <!-- Link: About -->
                     <li class="nav-item">
                         <a class="nav-link text-dark" href="about.html">
                             <span>About</span>
@@ -144,11 +112,7 @@
             </div>
         </header>
 
-        <!--
-         * ------------------------------------------------------------
-         * 2. EQUIP STATISTICS CONTROLS & TABLE
-         * ------------------------------------------------------------
-        -->
+
         <main class="container">
 
             <section class="row mt-3 rounded-lg bg-light">
@@ -163,9 +127,11 @@
                         Find which Equip cards can be used with the most monsters.
                     </p>
 
+
                     <div class="equip-stats-controls">
 
                         <div>
+
                             <label for="equip-sort">
                                 Sort by:
                             </label>
@@ -198,9 +164,12 @@
                                     Card name — Z–A
                                 </option>
                             </select>
+
                         </div>
 
+
                         <div>
+
                             <label for="equip-filter">
                                 Search:
                             </label>
@@ -211,20 +180,24 @@
                                 class="form-control"
                                 placeholder="Search equip card..."
                             />
+
                         </div>
 
                     </div>
+
 
                     <div class="table-responsive">
 
                         <table class="table table-striped equip-stats-table mobile-card-table">
 
                             <thead>
+
                                 <tr>
                                     <th>Rank</th>
                                     <th>Equip Card</th>
                                     <th>Compatible Monsters</th>
                                 </tr>
+
                             </thead>
 
                             <tbody id="equip-stats-body">
@@ -238,13 +211,15 @@
 
             </section>
 
-            <!-- Detailed Compatibility View -->
+
             <section
                 class="row rounded-lg mt-4 bg-light"
                 id="equip-details-section"
                 style="display: none;"
             >
+
                 <div class="col">
+
                     <h3
                         class="text-main my-4 text-center"
                         id="equip-details-title"
@@ -252,16 +227,14 @@
                     </h3>
 
                     <div id="equip-details"></div>
+
                 </div>
+
             </section>
 
         </main>
 
-        <!--
-         * ------------------------------------------------------------
-         * 3. FOOTER
-         * ------------------------------------------------------------
-        -->
+
         <footer class="container-fluid mt-auto">
 
             <div class="row footer-bottom">
@@ -290,7 +263,7 @@
 
         </footer>
 
-        <!-- Scripts -->
+
         <script
             type="text/javascript"
             src="public/javascripts/jquery-3.5.1.min.js"
