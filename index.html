@@ -87,13 +87,13 @@
             <section class="row container-main-fm">
                 <div class="col-md-8 offset-md-1 col-lg-5 offset-lg-1 order-sm-12 order-md-1 d-flex flex-column justify-content-start pt-3 pb-4 my-0">
                     <div>
-                        <h1 class="text-main mt-0 mb-3 text-white hero-title index-page-title">Yu-Gi-Oh! Forbidden Memories</h1>
-                        <h2 class="text-main mt-4 mb-4 text-white hero-title">Fusion Calculator and More!</h2>
+                        <h1 class="text-main mt-0 mb-3 text-white hero-title index-page-title"><strong>Yu-Gi-Oh! Forbidden Memories</strong></h1>
+                        <h2 class="text-main mt-4 mb-4 text-white hero-title"><strong>Fusion Calculator and More!</strong></h2>
                     </div>
 
                     <div class="mt-4 mb-0">
                         <p class="mb-3 text-subtext text-white">
-                             <br>
+                            &nbsp;<br>
                             <strong>Yu-Gi-Oh! Forbidden Memories</strong> is a terrible game with an AWESOME mechanic known as "fusions".<br>
                             Fusions allow players to mash cards together in an effort to create powerful cards.
                         </p>
@@ -118,7 +118,7 @@
             <section class="row container-fusion-search">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <h2 class="text-main mb-0 mt-0 pt-0">
-                        <span class="fusion-search">&nbsp;FUSION SEARCH&nbsp;</span>
+                        <span class="fusion-search"><strong>&nbsp;FUSION SEARCH&nbsp;</strong></span>
                     </h2>
 
                     <p class="h3 my-auto text-subtext">
@@ -147,7 +147,7 @@
             <section class="row container-fusion-calculator">
                 <div class="col col-lg-5 offset-lg-1 d-flex flex-column justify-content-between pb-0 mb-0">
                     <h2 class="text-main mb-0 mt-0 pt-0">
-                        <span class="fusion-calculator">&nbsp;FUSION CALCULATOR&nbsp;</span>
+                        <span class="fusion-calculator"><strong>&nbsp;FUSION CALCULATOR&nbsp;</strong></span>
                     </h2>
 
                     <p class="h3 my-auto text-subtext">
@@ -173,7 +173,7 @@
             <!-- SECTION 4: R30 G35 B55 dark blue space above "ABOUT" text and Kaiba; Spacing below button. -->
             <section class="row container-about">
                 <div class="col col-lg-5 offset-lg-1 pt-0 pb-0 my-0 d-flex flex-column justify-content-between">
-                    <h2 class="text-main mb-0 mt-0 pt-0"><span class="about-title">&nbsp;ABOUT&nbsp;</span></h2>
+                    <h2 class="text-main mb-0 mt-0 pt-0"><span class="about-title"><strong>&nbsp;ABOUT&nbsp;</strong></span></h2>
 
                     <p class="h3 my-auto text-subtext">
                         Learn more about Solumin's<br>
@@ -198,7 +198,7 @@
 
         <footer class="container-fluid">
             <div class="row footer-bottom m-0">
-                <div class="col text-center p-0 my-0">
+                <div class="col text-center my-3">
                     <a
                         class="d-inline m-0 p-0 text-decoration-none"
                         href="index.html"
@@ -211,8 +211,8 @@
                             alt="millennium-pendant"
                         />
                     </a>
-                    <p class="my-0 text-white d-inline">
-                        Yu-Gi-Oh! Forbidden Memories Fusion Calculator © 2020
+                    <p class="my-3 text-white d-inline">
+                        <strong>Yu-Gi-Oh! Forbidden Memories Fusion Calculator © 2020</strong>
                     </p>
                     <a
                         class="d-inline m-0 p-0"
@@ -220,12 +220,7 @@
                         rel="noopener noreferrer"
                         target="_blank"
                     >
-                        <img
-                            loading="lazy"
-                            class="gh-logo"
-                            src="https://simpleicons.org/icons/github.svg"
-                            alt="GitHub Repo"
-                        />
+                        <img class="gh-logo" src="https://simpleicons.org/icons/github.svg" alt="GitHub" />
                     </a>
                 </div>
             </div>
@@ -233,123 +228,5 @@
 
         <script type="text/javascript" src="public/javascripts/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="public/javascripts/bootstrap.bundle.min.js"></script>
-        <script type="text/javascript">
-            const ATEM_MANUAL_OFFSET = 0;
-            const KAIBA_MANUAL_OFFSET = 2;
-
-            let atemNaturalTransparentPadding = 0;
-            let kaibaNaturalTransparentPadding = 0;
-
-            function detectImageTransparency(img, callback) {
-                if (!img || !img.complete || img.naturalWidth === 0) return;
-                try {
-                    const canvas = document.createElement("canvas");
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-                    const ctx = canvas.getContext("2d");
-                    ctx.drawImage(img, 0, 0);
-                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-
-                    let maxX = 0;
-                    for (let y = 0; y < canvas.height; y++) {
-                        for (let x = canvas.width - 1; x > maxX; x--) {
-                            const alpha = imgData[(y * canvas.width + x) * 4 + 3];
-                            if (alpha > 15) {
-                                maxX = x;
-                                break;
-                            }
-                        }
-                    }
-                    if (maxX > 0) {
-                        callback((canvas.width - 1) - maxX);
-                    }
-                } catch (e) {
-                    // Safe fallback for local file://
-                }
-            }
-
-            function alignElementsToGif() {
-                const fusionGif = document.querySelector(".container-fusion-search .img-group");
-                const cover = document.querySelector(".cover-playstation");
-                const atem = document.querySelector(".container-fusion-calculator .img-atem");
-                const kaiba = document.querySelector(".container-about .img-kaiba");
-
-                if (!fusionGif || fusionGif.offsetParent === null) return;
-
-                if (cover) cover.style.transform = "none";
-                if (atem) atem.style.transform = "none";
-                if (kaiba) kaiba.style.transform = "none";
-
-                requestAnimationFrame(() => {
-                    const gifRight = fusionGif.getBoundingClientRect().right;
-
-                    // 1. Align Playstation Cover
-                    if (cover && cover.offsetParent !== null) {
-                        const coverRight = cover.getBoundingClientRect().right;
-                        cover.style.transform = `translateX(${gifRight - coverRight}px)`;
-                    }
-
-                    // 2. Align Atem's right-most pixel to the GIF's right-most pixel
-                    if (atem && atem.offsetParent !== null) {
-                        const atemRect = atem.getBoundingClientRect();
-                        const scaleA = atem.naturalWidth ? (atemRect.width / atem.naturalWidth) : 1;
-                        const visiblePaddingScaledA = atemNaturalTransparentPadding * scaleA;
-                        const shiftA = (gifRight - atemRect.right) + visiblePaddingScaledA + ATEM_MANUAL_OFFSET;
-                        atem.style.transform = `translateX(${shiftA}px)`;
-                    }
-
-                    // 3. Align Kaiba's right-most pixel to Atem (+2px offset)
-                    if (kaiba && kaiba.offsetParent !== null) {
-                        const kaibaRect = kaiba.getBoundingClientRect();
-                        const scaleK = kaiba.naturalWidth ? (kaibaRect.width / kaiba.naturalWidth) : 1;
-                        const visiblePaddingScaledK = kaibaNaturalTransparentPadding * scaleK;
-                        const shiftK = (gifRight - kaibaRect.right) + visiblePaddingScaledK + KAIBA_MANUAL_OFFSET;
-                        kaiba.style.transform = `translateX(${shiftK}px)`;
-                    }
-                });
-            }
-
-            function scheduleAlignment() {
-                alignElementsToGif();
-                requestAnimationFrame(alignElementsToGif);
-            }
-
-            window.addEventListener("load", () => {
-                const atemImg = document.querySelector(".container-fusion-calculator .img-atem");
-                const kaibaImg = document.querySelector(".container-about .img-kaiba");
-                if (atemImg) detectImageTransparency(atemImg, val => { atemNaturalTransparentPadding = val; });
-                if (kaibaImg) detectImageTransparency(kaibaImg, val => { kaibaNaturalTransparentPadding = val; });
-                scheduleAlignment();
-            });
-
-            window.addEventListener("resize", scheduleAlignment);
-
-            const fusionGif = document.querySelector(".container-fusion-search .img-group");
-            const atemImg = document.querySelector(".container-fusion-calculator .img-atem");
-            const kaibaImg = document.querySelector(".container-about .img-kaiba");
-            const coverImg = document.querySelector(".cover-playstation");
-
-            if (fusionGif) fusionGif.addEventListener("load", scheduleAlignment);
-            if (atemImg) {
-                atemImg.addEventListener("load", () => {
-                    detectImageTransparency(atemImg, val => { atemNaturalTransparentPadding = val; });
-                    scheduleAlignment();
-                });
-            }
-            if (kaibaImg) {
-                kaibaImg.addEventListener("load", () => {
-                    detectImageTransparency(kaibaImg, val => { kaibaNaturalTransparentPadding = val; });
-                    scheduleAlignment();
-                });
-            }
-
-            if (typeof ResizeObserver !== "undefined") {
-                const alignmentObserver = new ResizeObserver(scheduleAlignment);
-                if (fusionGif) alignmentObserver.observe(fusionGif);
-                if (coverImg) alignmentObserver.observe(coverImg);
-                if (atemImg) alignmentObserver.observe(atemImg);
-                if (kaibaImg) alignmentObserver.observe(kaibaImg);
-            }
-        </script>
     </body>
 </html>
