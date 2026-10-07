@@ -84,7 +84,7 @@
         <main class="container-fluid">
             <section class="row container-about">
                 <div class="col my-5 mx-5">
-                    <h2 class="text-center my-4 text-main">ABOUT</h2>
+                    <h2 class="text-center my-4 text-main"><span class="about-title"><strong>&nbsp;ABOUT&nbsp;</strong></span></h2>
 
                     <p>
                         PLEASE NOTE: This "site" was not <i>fully</i> set-up by <a href="https://www.twitch.tv/KAMIGENO" rel="noopener noreferrer" target="_blank">KAMIGENO</a>.<br>
@@ -99,7 +99,7 @@
                         Thank Solumin and their team, by the way.<br>
                         Pretty much every single thing KAMIGENO did has at least some basis
                         on what they did... more or less.<br>
-                         
+                        &nbsp;
                     </p>
 
                     <p>
@@ -129,7 +129,11 @@
                     </p>
                 </div>
             </section>
-            <section class="row" id="container-space"></section>
+            <section class="row justify-content-center" id="container-space">
+                <div class="col-12 text-center p-0">
+                    <img src="public/images/lost_memories.jpg" class="img-fluid" alt="Yu-Gi-Oh! Forbidden Memories" />
+                </div>
+            </section>
             <section class="row">
                 <div class="col my-4 mx-5">
                     <h2 class="text-center my-4 text-main">SOLUMIN'S SPECIAL THANKS</h2>
@@ -141,7 +145,7 @@
                             rel="noopener noreferrer"
                             target="_blank"
                             >this fusion FAQ</a
-                        >—provided a lot of data... alongside the <strong><a href="https://yugioh.fandom.com/wiki/Yu-Gi-Oh!_Forbidden_Memories">Yu-Gi-Oh! Wikia</a></strong>.<br>
+                        >—who provided a lot of data... alongside the <strong><a href="https://yugioh.fandom.com/wiki/Yu-Gi-Oh!_Forbidden_Memories">Yu-Gi-Oh! Wikia</a></strong>.<br>
                         The data provided by these sources are what I used to create the first version of this calculator.
                     </p>
                     <p>
@@ -160,8 +164,9 @@
                 </div>
             </section>
         </main>
+
         <footer class="container-fluid mt-auto">
-            <div class="row footer-bottom">
+            <div class="row footer-bottom m-0">
                 <div class="col text-center my-3">
                     <a
                         class="d-inline m-0 p-0 text-decoration-none"
@@ -176,7 +181,7 @@
                         />
                     </a>
                     <p class="my-3 text-white d-inline">
-                        Yu-Gi-Oh! Forbidden Memories Fusion Calculator © 2020
+                        <strong>Yu-Gi-Oh! Forbidden Memories Fusion Calculator © 2020</strong>
                     </p>
                     <a
                         class="d-inline m-0 p-0"
@@ -189,6 +194,7 @@
                 </div>
             </div>
         </footer>
+
         <script type="text/javascript" src="public/javascripts/jquery-3.5.1.min.js"></script>
         <script type="text/javascript" src="public/javascripts/bootstrap.bundle.min.js"></script>
     </body>
