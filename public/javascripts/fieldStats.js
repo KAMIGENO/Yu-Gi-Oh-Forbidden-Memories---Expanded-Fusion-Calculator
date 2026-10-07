@@ -1,4 +1,3 @@
-/* --- FILE: public/javascripts/fieldStats.js --- */
 /*
  * ------------------------------------------------------------
  * FILE: public/javascripts/fieldStats.js
@@ -220,7 +219,8 @@
 
             positiveCount: positiveCards.length,
             neutralCount: neutralCards.length,
-            negativeCount: negativeCards.length
+            negativeCount: negativeCards.length,
+            bonus: definition.Bonus
         });
 
     });
@@ -357,57 +357,59 @@
 
     function getEffectText(entry, isPositive) {
 
+        var bonus = entry.bonus || 500;
+
         if (isPositive) {
-            return "+" + entry.attackBonus + " ATK / +" + entry.defenseBonus + " DEF";
+            return "<span class=\"field-positive\">+" + bonus + " ATK / +" + bonus + " DEF</span>";
         }
 
-        return "-" + entry.attackPenalty + " ATK / -" + entry.defensePenalty + " DEF";
+        return "<span class=\"field-negative\">-" + bonus + " ATK / -" + bonus + " DEF</span>";
 
     }
 
 
     function buildFieldNote(entry) {
 
-        var parts = [];
+        var positiveNames = entry.positiveGroups
+            .map(function (group) {
+                return group.typeName;
+            })
+            .join(", ");
 
+        var negativeNames = entry.negativeGroups
+            .map(function (group) {
+                return group.typeName;
+            })
+            .join(", ");
 
-        if (entry.definition.PositiveTypes.length) {
+        var notes = [];
+        var bonus = entry.bonus || 500;
 
-            var positiveNames = entry.definition.PositiveTypes
-                .map(getTypeName)
-                .join(", ");
-
-            parts.push(
-                "<strong>+" +
-                entry.attackBonus +
+        if (positiveNames) {
+            notes.push(
+                "<strong><span class=\"field-positive\">+" +
+                bonus +
                 " ATK / +" +
-                entry.defenseBonus +
-                " DEF:</strong> " +
-                escapeHTML(positiveNames)
+                bonus +
+                " DEF:</span> " +
+                escapeHTML(positiveNames) +
+                "</strong>"
             );
-
         }
 
-
-        if (entry.definition.NegativeTypes.length) {
-
-            var negativeNames = entry.definition.NegativeTypes
-                .map(getTypeName)
-                .join(", ");
-
-            parts.push(
-                "<strong>-" +
-                entry.attackPenalty +
+        if (negativeNames) {
+            notes.push(
+                "<strong><span class=\"field-negative\">-" +
+                bonus +
                 " ATK / -" +
-                entry.defensePenalty +
-                " DEF:</strong> " +
-                escapeHTML(negativeNames)
+                bonus +
+                " DEF:</span> " +
+                escapeHTML(negativeNames) +
+                "</strong>"
             );
-
         }
 
-
-        return parts.join("<br>");
+        return notes.join("<br>");
 
     }
 
@@ -435,6 +437,7 @@
 
             var th = document.createElement("th");
             th.textContent = text;
+            th.style.position = "static";
             headerRow.appendChild(th);
 
         });
@@ -499,6 +502,7 @@
 
             var th = document.createElement("th");
             th.textContent = text;
+            th.style.position = "static";
             headerRow.appendChild(th);
 
         });
@@ -529,7 +533,7 @@
             var cardsCell = document.createElement("td");
             cardsCell.innerHTML = group.cards
                 .map(formatBoldCardLabel)
-                .join(", ");
+                .join("<br>");
 
             row.appendChild(typeCell);
             row.appendChild(countCell);
@@ -972,17 +976,25 @@
             beneficialCell.style.verticalAlign = "middle";
             beneficialCell.innerHTML = beneficialFields.length
                 ? beneficialFields
-                    .map(formatFieldCardSummary)
+                    .map(function (fieldCard) {
+                        return '<span class="field-positive">' +
+                            formatFieldCardSummary(fieldCard) +
+                            '</span>';
+                    })
                     .join("<br>")
-                : '<span style="display: block; text-align: center;">—</span>';
+                : '<span style="display: block; text-align: center; color: #000000;"><strong>—</strong></span>';
 
             var harmfulCell = document.createElement("td");
             harmfulCell.style.verticalAlign = "middle";
             harmfulCell.innerHTML = harmfulFields.length
                 ? harmfulFields
-                    .map(formatFieldCardSummary)
+                    .map(function (fieldCard) {
+                        return '<span class="field-negative">' +
+                            formatFieldCardSummary(fieldCard) +
+                            '</span>';
+                    })
                     .join("<br>")
-                : '<span style="display: block; text-align: center;">—</span>';
+                : '<span style="display: block; text-align: center; color: #000000;"><strong>—</strong></span>';
 
             row.appendChild(nameCell);
             row.appendChild(typeCell);
@@ -1012,17 +1024,6 @@
 
 /*
  * ------------------------------------------------------------
- * FILE: public/javascripts/fieldStats.js
- * ------------------------------------------------------------
- *
- * Field Statistics
- *
- * Shows all Field cards as expandable sections and provides a
- * reverse lookup that starts with a monster card and shows how
- * every Field affects it.
- *
- * Field identity/effect definitions live in data/fields.js.
- * The main card database still classifies these cards as Magic
- * (Type 20); fieldList provides the additional Field designation.
+ * END OF FILE
  * ------------------------------------------------------------
  */
