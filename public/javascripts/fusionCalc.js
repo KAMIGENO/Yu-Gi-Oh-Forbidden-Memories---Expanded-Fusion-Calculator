@@ -99,10 +99,11 @@ fusionsList.forEach(function (fusionList, cardId) {
     }
 
 
+    fusionLookup[cardId] = {};
+
+
     fusionList.forEach(function (fusion) {
 
-        var key = cardId + ":" + fusion.card;
-        var reverseKey = fusion.card + ":" + cardId;
         var resultCard = getCardById(fusion.result);
 
         if (!resultCard) {
@@ -110,8 +111,7 @@ fusionsList.forEach(function (fusionList, cardId) {
         }
 
 
-        fusionLookup[key] = resultCard;
-        fusionLookup[reverseKey] = resultCard;
+        fusionLookup[cardId][fusion.card] = resultCard;
 
     });
 
@@ -129,27 +129,33 @@ glitchFusions.forEach(function (fusion) {
     }
 
 
-    var key = card1.Id + ":" + card2.Id;
-    var reverseKey = card2.Id + ":" + card1.Id;
+    if (!glitchFusionLookup[card1.Id]) {
+        glitchFusionLookup[card1.Id] = {};
+    }
 
-    glitchFusionLookup[key] = resultCard;
-    glitchFusionLookup[reverseKey] = resultCard;
+    if (!glitchFusionLookup[card2.Id]) {
+        glitchFusionLookup[card2.Id] = {};
+    }
+
+
+    glitchFusionLookup[card1.Id][card2.Id] = resultCard;
+    glitchFusionLookup[card2.Id][card1.Id] = resultCard;
 
 });
 
 
-equipsList.forEach(function (targetIds, equipId) {
+equipsList.forEach(function (equipList, cardId) {
 
-    if (!targetIds) {
+    if (!equipList) {
         return;
     }
 
 
-    targetIds.forEach(function (targetId) {
+    equipLookup[cardId] = {};
 
-        var key = equipId + ":" + targetId;
-        equipLookup[key] = true;
 
+    equipList.forEach(function (targetId) {
+        equipLookup[cardId][targetId] = true;
     });
 
 });
@@ -161,32 +167,13 @@ ritualsList.forEach(function (ritualList) {
         return;
     }
 
-
     ritualList.forEach(function (ritual) {
 
         if (!ritual) {
             return;
         }
 
-
-        var ritualCard = getCardByName(ritual.ritualCard);
-        var card1 = getCardByName(ritual.card1);
-        var card2 = getCardByName(ritual.card2);
-        var card3 = getCardByName(ritual.card3);
-        var result = getCardByName(ritual.result);
-
-        if (!ritualCard || !card1 || !card2 || !card3 || !result) {
-            return;
-        }
-
-
-        ritualDefinitions.push({
-            ritualCard: ritualCard,
-            card1: card1,
-            card2: card2,
-            card3: card3,
-            result: result
-        });
+        ritualDefinitions.push(ritual);
 
     });
 
@@ -195,7 +182,7 @@ ritualsList.forEach(function (ritualList) {
 
 /*
  * ------------------------------------------------------------
- * 4. CARD DISPLAY HELPERS
+ * 4. DISPLAY HELPERS
  * ------------------------------------------------------------
  */
 
@@ -212,12 +199,22 @@ function escapeHTML(value) {
 
 
 function isMonster(card) {
-    return card && card.Type < 20;
+
+    return (
+        card &&
+        card.Type < 20
+    );
+
 }
 
 
 function formatCardId(id) {
-    return "#" + String(id).padStart(3, "0");
+
+    return (
+        "#" +
+        String(id).padStart(3, "0")
+    );
+
 }
 
 
@@ -257,7 +254,12 @@ function formatGuardianStars(card) {
 
 
 function getCardTypeName(card) {
-    return cardTypes[card.Type] || "Unknown";
+
+    return (
+        cardTypes[card.Type] ||
+        "Unknown"
+    );
+
 }
 
 
@@ -364,7 +366,10 @@ function formatBoldInputCard(card) {
 
 /*
  * ------------------------------------------------------------
- * 5. FUSION / EQUIP / RITUAL COMPUTATION
+ * 5. FUSION SEARCH ENGINE
+ *
+ * Find all two-card combinations and subsequent extensions
+ * across the cards currently in hand.
  * ------------------------------------------------------------
  */
 
@@ -375,22 +380,39 @@ function getFusionResult(cardA, cardB) {
     }
 
 
-    var key = cardA.Id + ":" + cardB.Id;
-
-    if (glitchFusionLookup[key]) {
+    if (
+        glitchFusionLookup[cardA.Id] &&
+        glitchFusionLookup[cardA.Id][cardB.Id]
+    ) {
 
         return {
-            result: glitchFusionLookup[key],
+            result: glitchFusionLookup[cardA.Id][cardB.Id],
             glitch: true
         };
 
     }
 
 
-    if (fusionLookup[key]) {
+    if (
+        fusionLookup[cardA.Id] &&
+        fusionLookup[cardA.Id][cardB.Id]
+    ) {
 
         return {
-            result: fusionLookup[key],
+            result: fusionLookup[cardA.Id][cardB.Id],
+            glitch: false
+        };
+
+    }
+
+
+    if (
+        fusionLookup[cardB.Id] &&
+        fusionLookup[cardB.Id][cardA.Id]
+    ) {
+
+        return {
+            result: fusionLookup[cardB.Id][cardA.Id],
             glitch: false
         };
 
@@ -543,11 +565,20 @@ function buildEquipTargets(cards) {
             }
 
 
-            var key = equipCard.Id + ":" + monsterCard.Id;
+            var hasEquip =
+                equipLookup[equipCard.Id] &&
+                equipLookup[equipCard.Id][monsterCard.Id];
 
-            if (equipLookup[key] && !seenEntries[key]) {
+            if (!hasEquip) {
+                continue;
+            }
 
-                seenEntries[key] = true;
+
+            var entryKey = equipCard.Id + ":" + monsterCard.Id;
+
+            if (!seenEntries[entryKey]) {
+
+                seenEntries[entryKey] = true;
 
                 entries.push({
                     equip: equipCard,
@@ -562,77 +593,6 @@ function buildEquipTargets(cards) {
 
 
     return entries;
-
-}
-
-
-function findRituals(cards) {
-
-    var availableCounts = {};
-
-
-    cards.forEach(function (card) {
-
-        availableCounts[card.Id] =
-            (availableCounts[card.Id] || 0) + 1;
-
-    });
-
-
-    var validRituals = [];
-    var seenRituals = {};
-
-
-    ritualDefinitions.forEach(function (ritual) {
-
-        var requiredCounts = {};
-
-
-        [
-            ritual.ritualCard.Id,
-            ritual.card1.Id,
-            ritual.card2.Id,
-            ritual.card3.Id
-        ].forEach(function (cardId) {
-
-            requiredCounts[cardId] =
-                (requiredCounts[cardId] || 0) + 1;
-
-        });
-
-
-        var canPerform = Object.keys(requiredCounts).every(function (cardId) {
-            return (availableCounts[cardId] || 0) >= requiredCounts[cardId];
-        });
-
-
-        if (canPerform) {
-
-            var ritualKey = [
-                ritual.ritualCard.Id,
-                ritual.card1.Id,
-                ritual.card2.Id,
-                ritual.card3.Id
-            ].sort(function (a, b) {
-                return a - b;
-            }).join(":");
-
-            ritualKey += "->" + ritual.result.Id;
-
-
-            if (!seenRituals[ritualKey]) {
-
-                seenRituals[ritualKey] = true;
-                validRituals.push(ritual);
-
-            }
-
-        }
-
-    });
-
-
-    return validRituals;
 
 }
 
@@ -765,52 +725,6 @@ function equipsToHTML(equipEntries) {
 }
 
 
-function ritualsToHTML(ritualList) {
-
-    return ritualList
-        .slice()
-        .sort(function (a, b) {
-            return a.result.Id - b.result.Id;
-        })
-        .map(function (ritual) {
-
-            return (
-                "<div class='result-div ritual-result'>" +
-                "<div><strong>Ritual:</strong> " +
-                formatBoldInputCard(ritual.ritualCard) +
-                "</div>" +
-                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
-                formatBoldInputCard(ritual.card1) +
-                "</div>" +
-                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
-                formatBoldInputCard(ritual.card2) +
-                "</div>" +
-                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
-                formatBoldInputCard(ritual.card3) +
-                "</div>" +
-                "<div><strong>RESULT: " +
-                escapeHTML(formatCardId(ritual.result.Id) + " " + ritual.result.Name) +
-                "</strong><br>" +
-                escapeHTML("Type: " + getCardTypeName(ritual.result)) +
-                (isMonster(ritual.result)
-                    ? "<br>Guardian Stars: " +
-                      escapeHTML(formatGuardianStars(ritual.result)) +
-                      "<br>" +
-                      escapeHTML(ritual.result.Attack) +
-                      "A / " +
-                      escapeHTML(ritual.result.Defense) +
-                      "D"
-                    : "") +
-                "</div>" +
-                "</div>"
-            );
-
-        })
-        .join("\n");
-
-}
-
-
 function fieldsToHTML(monsters, chains) {
 
     var allMonsters = monsters.slice();
@@ -931,6 +845,121 @@ function fieldsToHTML(monsters, chains) {
         })
         .filter(function (block) {
             return block !== "";
+        })
+        .join("\n");
+
+}
+
+
+function findRituals(cards) {
+
+    var cardCounts = {};
+
+
+    cards.forEach(function (card) {
+
+        cardCounts[card.Id] = (cardCounts[card.Id] || 0) + 1;
+
+    });
+
+
+    return ritualDefinitions
+        .map(function (ritual) {
+
+            var requiredCards = [
+                ritual.ritual_card,
+                ritual.card1,
+                ritual.card2,
+                ritual.card3
+            ];
+
+            var requiredCounts = {};
+
+
+            requiredCards.forEach(function (cardId) {
+                requiredCounts[cardId] = (requiredCounts[cardId] || 0) + 1;
+            });
+
+
+            var canRitual = Object.keys(requiredCounts).every(function (cardId) {
+
+                return (cardCounts[cardId] || 0) >= requiredCounts[cardId];
+
+            });
+
+
+            if (!canRitual) {
+                return null;
+            }
+
+
+            var ritualCard = getCardById(ritual.ritual_card);
+            var card1 = getCardById(ritual.card1);
+            var card2 = getCardById(ritual.card2);
+            var card3 = getCardById(ritual.card3);
+            var result = getCardById(ritual.result);
+
+            if (!ritualCard || !card1 || !card2 || !card3 || !result) {
+                return null;
+            }
+
+
+            return {
+                ritualCard: ritualCard,
+                card1: card1,
+                card2: card2,
+                card3: card3,
+                result: result
+            };
+
+        })
+        .filter(function (ritual) {
+            return ritual !== null;
+        });
+
+}
+
+
+function ritualsToHTML(ritualList) {
+
+    return ritualList
+        .slice()
+        .sort(function (a, b) {
+            return a.result.Id - b.result.Id;
+        })
+        .map(function (ritual) {
+
+            return (
+                "<div class='result-div ritual-result'>" +
+                "<div><strong>Ritual:</strong> " +
+                formatBoldInputCard(ritual.ritualCard) +
+                "</div>" +
+                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
+                formatBoldInputCard(ritual.card1) +
+                "</div>" +
+                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
+                formatBoldInputCard(ritual.card2) +
+                "</div>" +
+                "<div class='fusion-chain-step fusion-chain-followup' style='margin-left: 2rem;'><strong>Material:</strong> " +
+                formatBoldInputCard(ritual.card3) +
+                "</div>" +
+                "<div><strong>RESULT: " +
+                escapeHTML(formatCardId(ritual.result.Id) + " " + ritual.result.Name) +
+                "</strong><br>" +
+                escapeHTML("Type: " + getCardTypeName(ritual.result)) +
+                (isMonster(ritual.result)
+                    ? "<br>Guardian Stars: " +
+                      escapeHTML(formatGuardianStars(ritual.result)) +
+                      "<br>" +
+                      escapeHTML(ritual.result.Attack) +
+                      "A / " +
+                      escapeHTML(ritual.result.Defense) +
+                      "D"
+                    : "") +
+                "</div>" +
+                "</div>"
+            );
+
         })
         .join("\n");
 
