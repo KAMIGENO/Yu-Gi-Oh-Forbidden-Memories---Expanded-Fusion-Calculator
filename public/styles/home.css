@@ -158,35 +158,18 @@ header.navbar,
  * ------------------------------------------------------------
  */
 
+/* Anchor the Polymerization background artwork to the viewport.
+   Using a fixed attachment prevents the image from rescaling, zooming,
+   or shifting when content height changes dynamically (such as inputting
+   cards or sorting tables) and keeps the background static while scrolling. */
 .polymerization {
     width: 100%;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
         url("../images/fusion_background.jpg");
-    background-repeat: repeat-y;
+    background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
-}
-
-/* The calculator's content height changes whenever cards/results change.
-   Anchor its background to the viewport using a fixed viewport layer so
-   those changes do not rescale or reposition the artwork across browsers. */
-.fusion-calculator-page.polymerization {
-    background: transparent !important;
-}
-
-.fusion-calculator-page::before {
-    content: "";
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -1;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-        url("../images/fusion_background.jpg") no-repeat center top;
-    background-size: cover;
-    pointer-events: none;
-    transform: translateZ(0);
+    background-attachment: fixed;
 }
 
 .background-vrains {
