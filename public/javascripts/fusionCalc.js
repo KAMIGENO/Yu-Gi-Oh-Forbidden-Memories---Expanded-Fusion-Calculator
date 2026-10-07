@@ -196,100 +196,64 @@ function escapeHTML(value) {
 }
 
 
-function formatCardId(id) {
-
-    if (id < 10) {
-        return "#00" + id;
-    }
-
-    if (id < 100) {
-        return "#0" + id;
-    }
-
-    return "#" + id;
-
-}
-
-
 function isMonster(card) {
-    return card && card.Type <= 19;
+    return !!card && card.Type < 20;
 }
 
 
-function formatStats(attack, defense) {
-    return attack + "A / " + defense + "D";
+function formatCardId(id) {
+    return "#" + String(id).padStart(3, "0");
 }
 
 
 var guardianStarSymbols = {
-    1: "\u2609",
-    2: "\u263D",
-    3: "\u2642",
-    4: "\u263F",
-    5: "\u2643",
-    6: "\u2640",
-    7: "\u2644",
-    8: "\u26E2",
-    9: "\u2646",
-    10: "\u2647"
+    "Sun": "☉",
+    "Mercury": "☿",
+    "Venus": "♀",
+    "Moon": "☾",
+    "Mars": "♂",
+    "Jupiter": "♃",
+    "Saturn": "♄",
+    "Uranus": "⛢",
+    "Neptune": "♆",
+    "Pluto": "♇"
 };
 
 
 function formatGuardianStar(value) {
-    return starNames[value] || "Unknown";
+    return starNames[value - 1] || starNames[0];
 }
 
 
 function formatGuardianStarWithSymbol(value) {
-
-    var label = formatGuardianStar(value);
-    var symbol = guardianStarSymbols[value];
-
-    return symbol
-        ? symbol + " " + label
-        : label;
-
+    var name = formatGuardianStar(value);
+    return (guardianStarSymbols[name] || "") + " " + name;
 }
 
 
 function formatGuardianStars(card) {
-
     return (
-        formatGuardianStarWithSymbol(card.GuardianStar_1) +
+        formatGuardianStarWithSymbol(card.GuardianStarA) +
         " / " +
-        formatGuardianStarWithSymbol(card.GuardianStar_2)
+        formatGuardianStarWithSymbol(card.GuardianStarB)
     );
-
-}
-
-
-function getCardTypeName(card) {
-
-    if (!card) {
-        return "Unknown";
-    }
-
-    if (card.Type === 20) {
-        return fieldCardIds[card.Id]
-            ? "Magic (Field)"
-            : "Magic (Effect)";
-    }
-
-    return cardTypes[card.Type] || "Unknown";
-
 }
 
 
 function formatCardDetails(card) {
+    if (!card) {
+        return "";
+    }
 
-    var details = "Type: " + getCardTypeName(card);
-
+    var details =
+        "Type: " +
+        getCardTypeName(card);
 
     if (isMonster(card)) {
         details +=
-            " \u2014 Guardian Stars: " +
+            " — Guardian Stars: " +
             formatGuardianStars(card) +
-            " \u2014 " +
+            " — " +
             card.Attack +
             "A / " +
             card.Defense +
@@ -374,31 +338,54 @@ function formatStandardResultCard(card) {
 function fusesToHTML(fuselist) {
 
     return fuselist
-        .slice()
-        .sort(function (a, b) {
-            return a.result.Id - b.result.Id;
-        })
         .map(function (fusion) {
 
-            return (
-                "<div class='result-div'>" +
+            var res =
+                "<div class='result-div'>";
+
+            if (fusion.glitch) {
+                res += "<strong>Glitch Fusion</strong><br>";
+            }
+
+            res +=
                 formatBoldInputCard(fusion.card1) +
-                " + " +
-                formatBoldInputCard(fusion.card2) +
                 "<br>" +
-                formatBoldResultCard(fusion.result) +
-                "</div>"
-            );
+                formatBoldInputCard(fusion.card2);
+
+            if (fusion.result) {
+                res +=
+                    "<br>" +
+                    formatBoldResultCard(fusion.result);
+            }
+
+            return res + "</div>";
 
         })
-        .join("\n");
+        .join("");
+
+}
+
+
+function getCardTypeName(card) {
+
+    if (!card) {
+        return "Unknown";
+    }
+
+    if (card.Type === 20) {
+        return fieldCardIds[card.Id]
+            ? "Magic (Field)"
+            : "Magic (Effect)";
+    }
+
+    return cardTypes[card.Type] || "Unknown";
 
 }
 
 
 /*
  * ------------------------------------------------------------
- * 6. FUSION CALCULATION
+ * 5. FUSION CHAIN LOGIC
  * ------------------------------------------------------------
  */
 
