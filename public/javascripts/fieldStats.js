@@ -412,7 +412,7 @@
 
         var heading = document.createElement("h4");
         heading.className = "text-main my-4";
-        heading.textContent = title;
+        heading.innerHTML = "<strong>" + title + "</strong>";
         wrapper.appendChild(heading);
 
 
@@ -446,10 +446,11 @@
             nameCell.innerHTML = formatBoldCardLabel(card);
 
             var typeCell = document.createElement("td");
-            typeCell.textContent = getTypeName(card.Type);
+            typeCell.innerHTML = "<strong>" + getTypeName(card.Type) + "</strong>";
 
             var effectCell = document.createElement("td");
-            effectCell.textContent = effectText;
+            effectCell.innerHTML = "<strong>" + effectText + "</strong>";
+            effectCell.style.textAlign = "center";
 
             row.appendChild(nameCell);
             row.appendChild(typeCell);
@@ -476,7 +477,7 @@
 
         var heading = document.createElement("h4");
         heading.className = "text-main my-4";
-        heading.textContent = title;
+        heading.innerHTML = "<strong>" + title + "</strong>";
         wrapper.appendChild(heading);
 
 
@@ -507,16 +508,17 @@
             var row = document.createElement("tr");
 
             var typeCell = document.createElement("td");
-            typeCell.textContent = group.typeName;
+            typeCell.innerHTML = "<strong>" + group.typeName + "</strong>";
             typeCell.className = "field-group-summary-cell";
 
             var countCell = document.createElement("td");
-            countCell.textContent = group.cards.length;
+            countCell.innerHTML = "<strong>" + group.cards.length + "</strong>";
             countCell.className = "field-group-summary-cell";
 
             var effectCell = document.createElement("td");
-            effectCell.textContent = effectText;
+            effectCell.innerHTML = "<strong>" + effectText + "</strong>";
             effectCell.className = "field-group-summary-cell field-group-effect-cell";
+            effectCell.style.textAlign = "center";
 
             var cardsCell = document.createElement("td");
             cardsCell.innerHTML = group.cards
@@ -889,7 +891,6 @@
                         isStandaloneTerm
                     );
                 });
-
             })
             .sort(function (a, b) {
 
@@ -965,7 +966,7 @@
             nameCell.style.verticalAlign = "middle";
 
             var typeCell = document.createElement("td");
-            typeCell.textContent = getTypeName(monsterCard.Type);
+            typeCell.innerHTML = "<strong>" + getTypeName(monsterCard.Type) + "</strong>";
             typeCell.style.verticalAlign = "middle";
 
             var beneficialCell = document.createElement("td");
