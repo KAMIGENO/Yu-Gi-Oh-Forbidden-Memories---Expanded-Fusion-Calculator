@@ -106,19 +106,32 @@ fusionsList.forEach(function (fusionList, cardId) {
 });
 
 
-glitchFusionsList.forEach(function (fusionList, cardId) {
+if (typeof glitchFusions !== "undefined" && Array.isArray(glitchFusions)) {
 
-    if (!fusionList) {
-        return;
-    }
+    glitchFusions.forEach(function (fusion) {
 
-    glitchFusionLookup[cardId] = {};
+        var c1 = getCardByName(fusion.card1);
+        var c2 = getCardByName(fusion.card2);
+        var res = getCardByName(fusion.result);
 
-    fusionList.forEach(function (fusion) {
-        glitchFusionLookup[cardId][fusion.card] = fusion.result;
+        if (!c1 || !c2 || !res) {
+            return;
+        }
+
+        if (!glitchFusionLookup[c1.Id]) {
+            glitchFusionLookup[c1.Id] = {};
+        }
+
+        if (!glitchFusionLookup[c2.Id]) {
+            glitchFusionLookup[c2.Id] = {};
+        }
+
+        glitchFusionLookup[c1.Id][c2.Id] = res.Id;
+        glitchFusionLookup[c2.Id][c1.Id] = res.Id;
+
     });
 
-});
+}
 
 
 equipsList.forEach(function (equipList, cardId) {
