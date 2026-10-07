@@ -1,4 +1,3 @@
-/* --- FILE: public/javascripts/fusionCalc.js --- */
 /*
  * ------------------------------------------------------------
  * FILE: public/javascripts/fusionCalc.js
