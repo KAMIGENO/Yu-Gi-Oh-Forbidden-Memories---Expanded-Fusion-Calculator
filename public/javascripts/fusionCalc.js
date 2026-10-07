@@ -564,110 +564,118 @@ function buildFusionChains(cards) {
 
 function canEquip(equipCard, targetCard) {
 
-    if (!equipCard || !targetCard || !isMonster(targetCard)) {
-        return false;
-    }
-
-    return !!(equipLookup[equipCard.Id] && equipLookup[equipCard.Id][targetCard.Id]);
+    return !!(
+        equipCard &&
+        targetCard &&
+        Array.isArray(equipCard.Equip) &&
+        equipCard.Equip.indexOf(targetCard.Id) !== -1
+    );
 
 }
 
 
 function buildEquipTargets(cards) {
 
+    /*
+     * The card database identifies Equip cards directly through their
+     * Equip property. The equipsList lookup is organized by the monster
+     * receiving the Equip card, so it must not be used to identify roots.
+     */
     var equipCards = cards.filter(function (card) {
-        return card.Type === 21;
-    });
-
-    var monsterCards = cards.filter(function (card) {
-        return isMonster(card);
+        return Array.isArray(card.Equip) && card.Equip.length > 0;
     });
 
 
-    var seenEquips = {};
-    var uniqueEquipCards = [];
+    if (equipCards.length === 0) {
+        return [];
+    }
 
-    equipCards.forEach(function (card) {
 
-        if (!seenEquips[card.Id]) {
-            seenEquips[card.Id] = true;
-            uniqueEquipCards.push(card);
-        }
+    /*
+     * Use the same fusion-chain generation as the Fusion Calculator
+     * Fusions section.
+     *
+     * Depth represents the minimum number of original hand cards needed:
+     *   1 = card already in hand
+     *   2 = two-card fusion
+     *   3 = three-card fusion, etc.
+     */
+    var reachable = {};
+
+
+    cards.forEach(function (card) {
+
+        reachable[card.Id] = {
+            card: card,
+            depth: 1,
+            steps: []
+        };
 
     });
 
 
-    var chains = buildFusionChains(cards);
-    var equipEntries = [];
+    buildFusionChains(cards).forEach(function (chain) {
 
+        chain.forEach(function (step, index) {
 
-    uniqueEquipCards.forEach(function (equipCard) {
-
-        var targets = [];
-        var seenMonsters = {};
-
-
-        monsterCards.forEach(function (monsterCard) {
-
-            if (seenMonsters[monsterCard.Id]) {
+            if (!step.result) {
                 return;
             }
 
-            if (canEquip(equipCard, monsterCard)) {
-                seenMonsters[monsterCard.Id] = true;
-                targets.push({
-                    card: monsterCard,
-                    depth: 1
-                });
+
+            var depth = index + 2;
+            var current = reachable[step.result.Id];
+
+
+            if (!current || depth < current.depth) {
+
+                reachable[step.result.Id] = {
+                    card: step.result,
+                    depth: depth,
+                    steps: chain.slice(0, index + 1)
+                };
+
             }
 
         });
 
-
-        chains.forEach(function (chain) {
-
-            var finalResult = chain[chain.length - 1].result;
-
-            if (!isMonster(finalResult) || seenMonsters[finalResult.Id]) {
-                return;
-            }
-
-            if (canEquip(equipCard, finalResult)) {
-                seenMonsters[finalResult.Id] = true;
-                targets.push({
-                    card: finalResult,
-                    depth: chain.length + 1
-                });
-            }
-
-        });
+    });
 
 
-        if (targets.length === 0) {
-            return;
-        }
+    return equipCards.map(function (equipCard) {
+
+        var targets = Object.keys(reachable)
+            .map(function (id) {
+                return reachable[id];
+            })
+            .filter(function (entry) {
+
+                return (
+                    entry.card.Id !== equipCard.Id &&
+                    canEquip(equipCard, entry.card)
+                );
+
+            })
+            .sort(function (a, b) {
+
+                if (a.depth !== b.depth) {
+                    return a.depth - b.depth;
+                }
+
+                return a.card.Id - b.card.Id;
+
+            });
 
 
-        targets.sort(function (a, b) {
-
-            if (a.depth !== b.depth) {
-                return a.depth - b.depth;
-            }
-
-            return a.card.Id - b.card.Id;
-
-        });
-
-
-        equipEntries.push({
+        return {
             equip: equipCard,
+            depth: 0,
             targets: targets
-        });
+        };
 
+    }).filter(function (entry) {
+        return entry.targets.length > 0;
     });
-
-
-    return equipEntries;
 
 }
 
