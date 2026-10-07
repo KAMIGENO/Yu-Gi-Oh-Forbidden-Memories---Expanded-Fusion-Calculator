@@ -1123,105 +1123,196 @@ function ritualsToHTML(ritualList) {
 
 /*
  * ------------------------------------------------------------
- * 7. DOM GENERATION FOR INPUTS
- *
- * Only 10 inputs are in the DOM at any time. When moving
- * between pages, the current 10 inputs are rebuilt.
+ * 7. DOM GENERATION
  * ------------------------------------------------------------
  */
 
-function createInput(index) {
+function formatCardDetails(card) {
 
-    var wrapper = document.createElement("div");
-    wrapper.className = "input-wrapper mb-2 d-flex align-items-center";
+    return (
+        "Type: " +
+        getCardTypeName(card) +
+        " — Stars: " +
+        formatGuardianStars(card) +
+        " — " +
+        card.Attack +
+        "A / " +
+        card.Defense +
+        "D"
+    );
 
-    var number = document.createElement("span");
-    number.className = "input-number mr-2 font-weight-bold text-white";
-    number.textContent = (index + 1) + ".";
-    number.style.minWidth = "2.5rem";
-    number.style.textAlign = "right";
+}
 
-    var input = document.createElement("input");
-    input.type = "text";
-    input.className = "form-control card-input";
-    input.placeholder = "Card #" + (index + 1);
-    input.dataset.index = index;
 
-    var currentCard = handCards[index];
+function updateCardInfo(input, info) {
 
-    if (currentCard) {
-        input.value = currentCard.Name;
+    var card = getCardByName(input.value);
+
+
+    if (!card) {
+        info.textContent = "";
+        return;
     }
 
 
-    var clearBtn = document.createElement("button");
-    clearBtn.type = "button";
-    clearBtn.className = "btn btn-outline-secondary btn-sm ml-2 clear-slot-btn";
-    clearBtn.textContent = "×";
-    clearBtn.title = "Clear this slot";
-    clearBtn.dataset.index = index;
+    if (isMonster(card)) {
+
+        info.textContent =
+            formatCardDetails(card);
+
+        return;
+
+    }
+
+
+    var typeLabel = cardTypes[card.Type];
+
+
+    if (card.Type === 20) {
+        typeLabel = fieldCardIds[card.Id]
+            ? "Magic (Field)"
+            : "Magic (Effect)";
+    }
+
+
+    info.textContent = "Type: " + typeLabel;
+
+}
+
+
+function createInput(slotNumber) {
+
+    var wrapper = document.createElement("div");
+    wrapper.className = "hand-slot";
+
+
+    var number = document.createElement("span");
+    number.className = "hand-slot-number";
+
+    var paddedSlotNumber =
+        slotNumber < 10
+            ? "00" + slotNumber
+            : slotNumber < 100
+                ? "0" + slotNumber
+                : String(slotNumber);
+
+    number.textContent = paddedSlotNumber + ". ";
+
+
+    var input = document.createElement("input");
+    input.type = "text";
+    input.id = "hand" + slotNumber;
+    input.className = "hand-card-input";
+    input.autocomplete = "off";
+    input.placeholder = " Search card name...";
+
+
+    var info = document.createElement("span");
+    info.id = "hand" + slotNumber + "-info";
+    info.className = "hand-card-info";
 
 
     wrapper.appendChild(number);
     wrapper.appendChild(input);
-    wrapper.appendChild(clearBtn);
+    wrapper.appendChild(info);
 
-    return wrapper;
+
+    return {
+        wrapper: wrapper,
+        input: input,
+        info: info
+    };
 
 }
 
+
+/*
+ * ------------------------------------------------------------
+ * 8. PAGINATION
+ * ------------------------------------------------------------
+ */
 
 function renderPage() {
 
     handInputGroup.innerHTML = "";
 
-    var startIndex = (currentPage - 1) * PAGE_SIZE;
-    var endIndex = Math.min(startIndex + PAGE_SIZE, HAND_SIZE);
 
-    for (var i = startIndex; i < endIndex; i++) {
+    var start = (currentPage - 1) * PAGE_SIZE;
+    var end = Math.min(start + PAGE_SIZE, HAND_SIZE);
 
-        var wrapper = createInput(i);
-        handInputGroup.appendChild(wrapper);
 
-        var input = wrapper.querySelector(".card-input");
-        initializeAutocomplete(input);
+    for (var slot = start; slot < end; slot++) {
+
+        var slotNumber = slot + 1;
+        var elements = createInput(slotNumber);
+
+
+        handInputGroup.appendChild(elements.wrapper);
+
+
+        var card = handCards[slot];
+
+
+        if (card) {
+
+            elements.input.value = card.Name;
+            updateCardInfo(elements.input, elements.info);
+
+        }
+
+
+        initializeAutocomplete(
+            elements.input,
+            elements.info,
+            slot
+        );
 
     }
 
-    updatePaginationControls();
-    findFusions();
+
+    updatePagination();
 
 }
 
 
-function initializeAutocomplete(input) {
+function initializeAutocomplete(input, info, slotIndex) {
 
     var completion = new Awesomplete(input, {
         list: cardNames,
-        minChars: 1,
-        maxItems: 10,
-        autoFirst: true
-    });
-
-
-    input.addEventListener("awesomplete-selectcomplete", function () {
-
-        var card = getCardByName(this.value);
-        var idx = parseInt(this.dataset.index, 10);
-
-        handCards[idx] = card;
-
-        findFusions();
-
+        autoFirst: true,
+        filter: Awesomplete.FILTER_STARTSWITH
     });
 
 
     input.addEventListener("input", function () {
 
-        var card = getCardByName(this.value);
-        var idx = parseInt(this.dataset.index, 10);
+        if (input.value.trim() === "") {
+            handCards[slotIndex] = null;
+            updateCardInfo(input, info);
+            findFusions();
+        }
 
-        handCards[idx] = card;
+    });
+
+
+    input.addEventListener("change", function () {
+
+        completion.select();
+
+        handCards[slotIndex] = getCardByName(input.value);
+
+        updateCardInfo(input, info);
+
+        findFusions();
+
+    });
+
+
+    input.addEventListener("awesomplete-selectcomplete", function () {
+
+        handCards[slotIndex] = getCardByName(input.value);
+
+        updateCardInfo(input, info);
 
         findFusions();
 
@@ -1230,211 +1321,109 @@ function initializeAutocomplete(input) {
 }
 
 
-function updatePaginationControls() {
+/*
+ * ------------------------------------------------------------
+ * 9. PAGINATION CONTROLS
+ * ------------------------------------------------------------
+ */
 
-    var prevBtn = document.getElementById("hand-prev");
-    var nextBtn = document.getElementById("hand-next");
-    var display = document.getElementById("page-display");
+function updatePagination() {
 
-    if (prevBtn) {
-        prevBtn.disabled = currentPage === 1;
-    }
+    var pageLabel = document.getElementById("hand-page-label");
+    var prevButton = document.getElementById("hand-prev");
+    var nextButton = document.getElementById("hand-next");
 
-    if (nextBtn) {
-        nextBtn.disabled = currentPage === totalPages;
-    }
 
-    if (display) {
-        display.textContent = "Cards " +
-            ((currentPage - 1) * PAGE_SIZE + 1) +
-            "–" +
-            Math.min(currentPage * PAGE_SIZE, HAND_SIZE) +
-            " of " +
-            HAND_SIZE;
-    }
+    var startSlot = (currentPage - 1) * PAGE_SIZE + 1;
+    var endSlot = Math.min(currentPage * PAGE_SIZE, HAND_SIZE);
+
+    var paddedStartSlot =
+        startSlot < 10
+            ? "00" + startSlot
+            : startSlot < 100
+                ? "0" + startSlot
+                : String(startSlot);
+
+    var paddedEndSlot =
+        endSlot < 10
+            ? "00" + endSlot
+            : endSlot < 100
+                ? "0" + endSlot
+                : String(endSlot);
+
+    pageLabel.textContent =
+        "Slots " +
+        paddedStartSlot +
+        "–" +
+        paddedEndSlot +
+        " of " +
+        HAND_SIZE;
+
+
+    prevButton.disabled = currentPage === 1;
+    nextButton.disabled = currentPage === totalPages;
 
 }
 
 
-/*
- * ------------------------------------------------------------
- * 8. QUICK ADD
- * ------------------------------------------------------------
- */
+function changePage(page) {
 
-function addCardToHand(card) {
-
-    if (!card) {
-        return false;
+    if (page < 1 || page > totalPages) {
+        return;
     }
 
-    var emptyIndex = -1;
-
-    for (var i = 0; i < HAND_SIZE; i++) {
-
-        if (handCards[i] === null) {
-            emptyIndex = i;
-            break;
-        }
-
-    }
-
-    if (emptyIndex === -1) {
-        return false;
-    }
-
-    handCards[emptyIndex] = card;
-
-    var targetPage = Math.floor(emptyIndex / PAGE_SIZE) + 1;
-
-    if (targetPage !== currentPage) {
-        currentPage = targetPage;
-    }
-
+    currentPage = page;
     renderPage();
 
-    return true;
+    var firstInput = document.getElementById(
+        "hand" + ((currentPage - 1) * PAGE_SIZE + 1)
+    );
+
+
+    if (firstInput) {
+        firstInput.focus();
+    }
 
 }
 
 
-/*
- * ------------------------------------------------------------
- * 9. EVENT HANDLERS
- * ------------------------------------------------------------
- */
-
 document.getElementById("hand-prev").addEventListener("click", function () {
-
-    if (currentPage > 1) {
-        currentPage--;
-        renderPage();
-    }
-
+    changePage(currentPage - 1);
 });
 
 
 document.getElementById("hand-next").addEventListener("click", function () {
-
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderPage();
-    }
-
+    changePage(currentPage + 1);
 });
-
-
-document.getElementById("clear-hand-btn").addEventListener("click", function () {
-
-    handCards.fill(null);
-    currentPage = 1;
-    renderPage();
-
-});
-
-
-handInputGroup.addEventListener("click", function (event) {
-
-    if (event.target.classList.contains("clear-slot-btn")) {
-
-        var idx = parseInt(event.target.dataset.index, 10);
-        handCards[idx] = null;
-        renderPage();
-
-    }
-
-});
-
-
-var quickInput = document.getElementById("quick-input");
-
-if (quickInput) {
-
-    var quickAwesomplete = new Awesomplete(quickInput, {
-        list: cardNames,
-        minChars: 1,
-        maxItems: 10,
-        autoFirst: true
-    });
-
-    function handleQuickAdd() {
-
-        var card = getCardByName(quickInput.value);
-
-        if (card) {
-            addCardToHand(card);
-            quickInput.value = "";
-            quickInput.focus();
-        }
-
-    }
-
-    quickInput.addEventListener("awesomplete-selectcomplete", handleQuickAdd);
-
-    quickInput.addEventListener("keydown", function (event) {
-
-        if (event.key === "Enter") {
-            handleQuickAdd();
-        }
-
-    });
-
-    var quickAddBtn = document.getElementById("quick-add-btn");
-
-    if (quickAddBtn) {
-        quickAddBtn.addEventListener("click", handleQuickAdd);
-    }
-
-}
 
 
 /*
  * ------------------------------------------------------------
- * 10. DRAG AND DROP / PASTE
+ * 10. RESET
  * ------------------------------------------------------------
  */
 
-document.addEventListener("paste", function (event) {
+function resultsClear() {
 
-    var active = document.activeElement;
+    outputLeft.innerHTML = "";
+    outputRight.innerHTML = "";
 
-    if (
-        active &&
-        (active.classList.contains("card-input") || active.id === "quick-input")
-    ) {
-        return;
-    }
+}
 
-    var pastedText = (event.clipboardData || window.clipboardData).getData("text");
 
-    if (!pastedText) {
-        return;
-    }
+function inputsClear() {
 
-    var lines = pastedText.split(/\r?\n/);
-    var addedAny = false;
+    handCards.fill(null);
+    currentPage = 1;
 
-    lines.forEach(function (line) {
+    renderPage();
+    resultsClear();
 
-        var trimmed = line.trim();
+}
 
-        if (trimmed) {
 
-            var card = getCardByName(trimmed);
-
-            if (card) {
-                addCardToHand(card);
-                addedAny = true;
-            }
-
-        }
-
-    });
-
-    if (addedAny) {
-        event.preventDefault();
-    }
-
+document.getElementById("resetBtn").addEventListener("click", function () {
+    inputsClear();
 });
 
 
