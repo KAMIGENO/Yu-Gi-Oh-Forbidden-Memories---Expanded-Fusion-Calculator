@@ -191,13 +191,8 @@ header.navbar,
 }
 
 #container-space {
-    height: 29.76190476rem;
-    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-        url("../images/lost_memories.jpg");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
-    text-shadow: 0.11904762rem 0.11904762rem 0.35714286rem black;
+    height: auto;
+    background: none;
 }
 
 
@@ -334,6 +329,7 @@ footer {
 
 .footer-bottom {
     background-color: var(--black-color);
+    margin: 0 !important;
     padding-top: var(--shared-spacing) !important;
     padding-bottom: var(--shared-spacing) !important;
 }
