@@ -1,3 +1,13 @@
+/*
+ * ------------------------------------------------------------
+ * FILE: public/styles/fusioncustom.css
+ * ------------------------------------------------------------
+ *
+ * Custom page layouts, table responsiveness, calculator controls,
+ * card detail presentation, and search result formatting.
+ */
+
+
 main.container {
     max-width: 110rem;
 }
@@ -15,7 +25,7 @@ main.container {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: repeat(5, auto);
     grid-auto-flow: column;
-    gap: var(--card-input-spacing) var(--card-input-spacing);
+    gap: var(--shared-spacing) var(--shared-spacing);
     width: 100%;
 }
 
@@ -92,7 +102,7 @@ main.container {
 @media (max-width: 45.6547619rem) {
     .hand-input-group {
         grid-template-columns: 1fr;
-        gap: 0.71428571rem var(--card-input-spacing);
+        gap: 0.71428571rem var(--shared-spacing);
     }
 }
 
@@ -238,11 +248,101 @@ main.container {
 
 
 
+
 /* ------------------------------------------------------------
-   STATISTICS TABLE COLUMN SIZING
+   FIELD STATISTICS
    ------------------------------------------------------------ */
 
-/* Keep all statistics tables stable while filtering. Content stays on one line. */
+.field-stats-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.19047619rem;
+    margin: 1.78571429rem auto;
+    max-width: 53.57142857rem;
+    flex-wrap: wrap;
+}
+
+.field-stats-select-label {
+    min-width: 14.88095238rem;
+    width: auto;
+    max-width: 20.83333333rem;
+    margin: 0;
+    flex: 1 1 14.88095238rem;
+}
+
+.field-stats-select {
+    width: 100%;
+}
+
+.field-stats-table {
+    max-width: none;
+    margin: 0 auto;
+}
+
+.field-stats-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.field-stats-row {
+    cursor: default;
+}
+
+.field-stats-row:hover {
+    background-color: #eeeeee;
+}
+
+#field-details {
+    max-width: none;
+    margin: 0 auto;
+}
+
+#field-details table {
+    margin-bottom: 1.78571429rem;
+}
+
+.field-effect-table thead th,
+.field-type-group-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.field-effect-row,
+.field-type-group-row {
+    cursor: default;
+}
+
+.field-effect-row:hover,
+.field-type-group-row:hover {
+    background-color: #eeeeee;
+}
+
+@media (max-width: 45.6547619rem) {
+
+    .field-stats-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .field-stats-select-label {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+        flex: 1 1 auto;
+    }
+
+}
+
+
+
+
+/* ------------------------------------------------------------
+   TABLE LAYOUT UNIFORMITY
+   ------------------------------------------------------------ */
+
 .fusion-stats-table,
 .equip-stats-table,
 .field-stats-table,
@@ -416,18 +516,24 @@ main.container {
    FUSION CALCULATOR SHARED SPACING
    ------------------------------------------------------------ */
 
-/* 18px is the shared card-input spacing reference for this page.
-   The project root is 16.8px, so the reference spacing is expressed
-   in rem rather than authored as a fixed pixel distance. */
+/* 18px is the shared spacing reference for this page, inheriting
+   from --shared-spacing in public/styles/home.css (1.07142857rem).
+   --card-input-spacing is retained as an alias for compatibility. */
 .fusion-calculator-page {
-    --card-input-spacing: 1.07142857rem;
+    --card-input-spacing: var(--shared-spacing);
+}
+
+/* Utility class for button-to-input spacing */
+.button-to-input-spacing {
+    margin-top: var(--shared-spacing) !important;
+    margin-bottom: var(--shared-spacing) !important;
 }
 
 /* Keep the calculator panels slightly inside the available page width by
    one shared spacing unit on each side. */
 .fusion-calculator-page main.container > .fusion-calculator-panel,
 .fusion-calculator-page main.container > .fusion-calculator-results {
-    width: calc(100% - (2 * var(--card-input-spacing)));
+    width: calc(100% - (2 * var(--shared-spacing)));
     margin-left: auto;
     margin-right: auto;
 }
@@ -438,13 +544,13 @@ main.container {
 }
 
 /* The results panel remains separated from the hand panel by the shared
-   card-input spacing. */
+   spacing. */
 .fusion-calculator-page main.container > .fusion-calculator-results {
-    margin-top: var(--card-input-spacing) !important;
+    margin-top: var(--shared-spacing) !important;
 }
 
 .fusion-calculator-output-section + .fusion-calculator-output-section {
-    margin-top: var(--card-input-spacing);
+    margin-top: var(--shared-spacing);
 }
 
 .fusion-calculator-output-section > .result-div:last-child {
@@ -479,8 +585,8 @@ main.container {
 #hand-prev,
 #hand-next,
 #resetBtn {
-    margin-top: var(--card-input-spacing) !important;
-    margin-bottom: var(--card-input-spacing) !important;
+    margin-top: var(--shared-spacing) !important;
+    margin-bottom: var(--shared-spacing) !important;
     width: 7.73809524rem;
     height: 2.85714286rem;
     display: inline-flex;
@@ -535,7 +641,7 @@ main.container {
 
 /* Leave one shared spacing unit between the left and right result boxes. */
 .fusion-calculator-results #outputarealeft .fusion-calculator-output-section {
-    width: calc(100% - var(--card-input-spacing));
+    width: calc(100% - var(--shared-spacing));
 }
 
 @media (max-width: 34.22619048rem) {
@@ -549,9 +655,16 @@ main.container {
 
 /* Fusion Calculator output alignment */
 .fusion-calculator-output-section.output-left-section {
-    padding-left: var(--card-input-spacing);
+    padding-left: var(--shared-spacing);
 }
 
 .fusion-calculator-output-section.output-right-section {
-    width: calc(100% - var(--card-input-spacing));
+    width: calc(100% - var(--shared-spacing));
 }
+
+
+/*
+ * ------------------------------------------------------------
+ * END OF FILE
+ * ------------------------------------------------------------
+ */
