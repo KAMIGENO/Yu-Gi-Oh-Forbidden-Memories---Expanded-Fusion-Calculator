@@ -1,3 +1,4 @@
+/* --- FILE: public/javascripts/fieldStats.js --- */
 /*
  * ------------------------------------------------------------
  * FILE: public/javascripts/fieldStats.js
@@ -24,135 +25,125 @@
     var statistics = [];
 
 
-    var fieldListContainer = document.getElementById("field-list");
+    var positiveRankLabels = {};
+    var neutralRankLabels = {};
+    var negativeRankLabels = {};
+
+
+    var fieldListElement = document.getElementById("field-list");
     var monsterFilterInput = document.getElementById("monster-filter");
-    var monsterSearchBody = document.getElementById("monster-field-search-body");
+    var monsterSearchBody = document.getElementById(
+        "monster-field-search-body"
+    );
 
 
     function escapeHTML(value) {
+
         return String(value)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
-            .replace(/\"/g, "&quot;")
-            .replace(/\'/g, "&#039;");
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+
     }
 
 
     function formatCardId(id) {
+
         return "#" + String(id).padStart(3, "0");
+
     }
 
 
     function formatBoldCardLabel(card) {
-        return "<strong>" +
-            escapeHTML(formatCardId(card.Id) + " " + card.Name) +
-            "</strong>";
-    }
 
+        return "<strong>" + escapeHTML(formatCardId(card.Id) + " " + card.Name) + "</strong>";
 
-    function getTypeName(typeId) {
-        return cardTypes[typeId] || "Unknown";
-    }
-
-
-    function formatGuardianStar(value) {
-        return starNames[value - 1] || starNames[0];
-    }
-
-    var guardianStarSymbols = {
-        Sun: "☉", Mercury: "☿", Venus: "♀", Moon: "☾",
-        Mars: "♂", Jupiter: "♃", Saturn: "♄", Uranus: "⛢",
-        Neptune: "♆", Pluto: "♇"
-    };
-
-    function formatGuardianStarWithSymbol(value) {
-        var name = formatGuardianStar(value);
-        return (guardianStarSymbols[name] || "") + " " + name;
-    }
-
-
-    function formatMonsterSummary(card) {
-        return (
-            formatBoldCardLabel(card) +
-            "<br>Type: " +
-            escapeHTML(getTypeName(card.Type)) +
-            " — Guardian Stars: " +
-            escapeHTML(formatGuardianStarWithSymbol(card.GuardianStarA)) +
-            " / " +
-            escapeHTML(formatGuardianStarWithSymbol(card.GuardianStarB)) +
-            " — " +
-            escapeHTML(card.Attack) +
-            "A / " +
-            escapeHTML(card.Defense) +
-            "D"
-        );
     }
 
 
     function formatFieldCardSummary(card) {
-        return formatBoldCardLabel(card);
+        return (
+            formatBoldCardLabel(card) +
+            "<br><span style=\"font-weight: normal;\">Type: Magic (Field)</span>"
+        );
     }
 
 
     /*
      * ------------------------------------------------------------
-     * 1. CARD LOOKUP CACHE
+     * 1. CARD LOOKUP
      * ------------------------------------------------------------
      */
 
     var allCards = card_db().get();
 
+
     allCards.forEach(function (card) {
+
         cardById[card.Id] = card;
+
     });
 
 
-    var monsterCards = allCards
-        .filter(function (card) {
-            return card.Type < 20;
-        })
-        .sort(function (a, b) {
-            return a.Id - b.Id;
-        });
+    function isMonster(card) {
 
+        return !!card && card.Type < 20;
+
+    }
+
+
+    var monsterCards = allCards.filter(function (card) {
+
+        return isMonster(card);
+
+    });
 
     var monsterCardsByName = monsterCards.slice().sort(function (a, b) {
-        var comparison = a.Name.localeCompare(b.Name);
 
-        if (comparison !== 0) {
-            return comparison;
-        }
+        return a.Name.localeCompare(b.Name);
 
-        return a.Id - b.Id;
     });
+
+
+    function getCardsForTypes(typeIds) {
+
+        return monsterCardsByName.filter(function (card) {
+
+            return typeIds.indexOf(card.Type) !== -1;
+
+        });
+
+    }
+
+
+    function getTypeName(typeId) {
+
+        return cardTypes[typeId] || "Unknown";
+
+    }
 
 
     /*
      * ------------------------------------------------------------
-     * 2. BUILD FIELD STATISTICS
+     * 2. PROCESS CARDS
      * ------------------------------------------------------------
      */
 
     var fieldDefinitions = fieldList || [];
 
+
     fieldDefinitions.forEach(function (definition) {
 
-        var fieldCard = cardById[definition.CardId];
+        var fieldCard = cardById[definition.Id];
 
         if (!fieldCard) {
             return;
         }
 
-        var positiveTypeSet = {};
-        definition.PositiveTypes.forEach(function (typeId) {
-            positiveTypeSet[typeId] = true;
-        });
-
-        var negativeTypeSet = {};
-        definition.NegativeTypes.forEach(function (typeId) {
-            negativeTypeSet[typeId] = true;
-        });
+        var positiveTypes = definition.PositiveTypes || [];
+        var negativeTypes = definition.NegativeTypes || [];
 
         var positiveCards = [];
         var neutralCards = [];
@@ -166,70 +157,61 @@
         var neutralGroupMap = {};
         var negativeGroupMap = {};
 
-        monsterCards.forEach(function (card) {
+        monsterCardsByName.forEach(function (card) {
 
-            var isPositive = !!positiveTypeSet[card.Type];
-            var isNegative = !!negativeTypeSet[card.Type];
+            var typeId = card.Type;
 
-            if (isPositive) {
+            if (positiveTypes.indexOf(typeId) !== -1) {
 
                 positiveCards.push(card);
                 positiveIdSet[card.Id] = true;
+                positiveGroupMap[typeId] = (positiveGroupMap[typeId] || 0) + 1;
 
-                if (!positiveGroupMap[card.Type]) {
-                    positiveGroupMap[card.Type] = [];
-                }
-
-                positiveGroupMap[card.Type].push(card);
-
-            } else if (isNegative) {
+            } else if (negativeTypes.indexOf(typeId) !== -1) {
 
                 negativeCards.push(card);
                 negativeIdSet[card.Id] = true;
-
-                if (!negativeGroupMap[card.Type]) {
-                    negativeGroupMap[card.Type] = [];
-                }
-
-                negativeGroupMap[card.Type].push(card);
+                negativeGroupMap[typeId] = (negativeGroupMap[typeId] || 0) + 1;
 
             } else {
 
                 neutralCards.push(card);
                 neutralIdSet[card.Id] = true;
-
-                if (!neutralGroupMap[card.Type]) {
-                    neutralGroupMap[card.Type] = [];
-                }
-
-                neutralGroupMap[card.Type].push(card);
+                neutralGroupMap[typeId] = (neutralGroupMap[typeId] || 0) + 1;
 
             }
 
         });
 
         function toGroupList(groupMap) {
-            return Object.keys(groupMap)
-                .map(function (typeId) {
-                    var numericTypeId = parseInt(typeId, 10);
-                    return {
-                        typeId: numericTypeId,
-                        typeName: getTypeName(numericTypeId),
-                        cards: groupMap[typeId]
-                    };
-                })
-                .sort(function (a, b) {
-                    return a.typeName.localeCompare(b.typeName);
-                });
+
+            return Object.keys(groupMap).map(function (typeIdString) {
+
+                var typeId = Number(typeIdString);
+
+                return {
+                    typeId: typeId,
+                    typeName: getTypeName(typeId),
+                    count: groupMap[typeId],
+                    cards: getCardsForTypes([typeId])
+                };
+
+            }).sort(function (a, b) {
+
+                return a.typeName.localeCompare(b.typeName);
+
+            });
+
         }
 
         statistics.push({
-            definition: definition,
             card: fieldCard,
-            attackBonus: definition.AttackBonus,
-            defenseBonus: definition.DefenseBonus,
-            attackPenalty: definition.AttackPenalty,
-            defensePenalty: definition.DefensePenalty,
+            definition: definition,
+
+            attackBonus: definition.AttackBonus || 500,
+            defenseBonus: definition.DefenseBonus || 500,
+            attackPenalty: definition.AttackPenalty || 500,
+            defensePenalty: definition.DefensePenalty || 500,
 
             positiveCards: positiveCards,
             neutralCards: neutralCards,
@@ -253,54 +235,36 @@
 
     /*
      * ------------------------------------------------------------
-     * 3. RANK LABELS
+     * 3. RANK CALCULATIONS
      * ------------------------------------------------------------
      */
 
-    var positiveRankLabels = {};
-    var neutralRankLabels = {};
-    var negativeRankLabels = {};
-
-
-    function calculateRankLabels(countProperty, targetLabels) {
+    function calculateRankLabels(property, targetMap) {
 
         var sorted = statistics.slice().sort(function (a, b) {
 
-            if (b[countProperty] !== a[countProperty]) {
-                return b[countProperty] - a[countProperty];
+            if (b[property] !== a[property]) {
+                return b[property] - a[property];
             }
 
             return a.card.Id - b.card.Id;
 
         });
 
+        var currentRank = 0;
+        var previousValue = null;
 
-        var i = 0;
+        for (var i = 0; i < sorted.length; i++) {
 
-        while (i < sorted.length) {
+            var entry = sorted[i];
+            var value = entry[property];
 
-            var count = sorted[i][countProperty];
-            var startRank = i + 1;
-            var j = i + 1;
-
-            while (j < sorted.length && sorted[j][countProperty] === count) {
-                j++;
+            if (value !== previousValue) {
+                currentRank = i + 1;
+                previousValue = value;
             }
 
-            var endRank = j;
-            var label;
-
-            if (startRank === endRank) {
-                label = "Rank " + startRank;
-            } else {
-                label = "Rank " + startRank + "–" + endRank;
-            }
-
-            for (var k = i; k < j; k++) {
-                targetLabels[sorted[k].card.Id] = label;
-            }
-
-            i = j;
+            targetMap[entry.card.Id] = "Rank " + currentRank;
 
         }
 
@@ -314,7 +278,7 @@
 
     /*
      * ------------------------------------------------------------
-     * 4. SORTING
+     * 4. SORT FIELD STATISTICS
      * ------------------------------------------------------------
      */
 
@@ -330,163 +294,50 @@
                 return a.negativeCount - b.negativeCount;
             }
 
+            if (b.neutralCount !== a.neutralCount) {
+                return b.neutralCount - a.neutralCount;
+            }
+
             return a.card.Id - b.card.Id;
 
         });
 
     }
 
-
-    function escapeSearchRegExp(value) {
-        return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    }
-
-
-    function normalizeNumericTerm(value) {
-        if (/^[0-9,.]+$/.test(value) && /[0-9]/.test(value)) {
-            return value.replace(/[,.]/g, "");
-        }
-
-        return value;
-    }
-
-
-    function isNumericTerm(value) {
-        return /^[0-9,.]+$/.test(value) && /[0-9]/.test(value);
-    }
-
-
-    function isSearchBoundary(cardName, index) {
-        if (index === 0) {
-            return true;
-        }
-
-        var previousCharacter = cardName.charAt(index - 1);
-
-        return /\s/.test(previousCharacter) ||
-            previousCharacter === "-" ||
-            previousCharacter === ".";
-    }
-
-
-    function matchesNumericTerm(card, cardName, searchTerm) {
-
-        var normalizedSearchTerm = normalizeNumericTerm(searchTerm);
-
-        if (/^[0-9]+$/.test(searchTerm) && searchTerm.length <= 3) {
-
-            var formattedId = String(card.Id).padStart(3, "0");
-            var normalizedId = formattedId.replace(/^0+/, "") || "0";
-            var normalizedIdSearch = normalizedSearchTerm.replace(/^0+/, "") || "0";
-
-            if (normalizedId === normalizedIdSearch) {
-                return true;
-            }
-
-        }
-
-        var numericPattern = /[0-9][0-9,.]*/g;
-        var match;
-
-        while ((match = numericPattern.exec(cardName)) !== null) {
-
-            if (
-                !isSearchBoundary(cardName, match.index) &&
-                cardName.charAt(match.index - 1) !== "#"
-            ) {
-                continue;
-            }
-
-            var normalizedNumber = normalizeNumericTerm(match[0]);
-
-            if (normalizedNumber.indexOf(normalizedSearchTerm) === 0) {
-                return true;
-            }
-
-        }
-
-        return false;
-
-    }
-
-
-    function matchesSearchTerm(card, cardName, searchTerm, isStandaloneTerm) {
-
-        if (isNumericTerm(searchTerm)) {
-            return matchesNumericTerm(card, cardName, searchTerm);
-        }
-
-        if (isStandaloneTerm && searchTerm.length === 1) {
-
-            if (cardName.indexOf(searchTerm) === 0) {
-                return true;
-            }
-
-            if (searchTerm === "'") {
-                return false;
-            }
-
-            if (!/[a-z0-9]/.test(searchTerm)) {
-                return cardName.indexOf(searchTerm) !== -1;
-            }
-
-            var punctuationDelimitedPattern = new RegExp(
-                "(^|\\s|[-.])" + escapeSearchRegExp(searchTerm) + "\\."
-            );
-
-            return punctuationDelimitedPattern.test(cardName);
-
-        }
-
-        if (!isStandaloneTerm && searchTerm === ".") {
-            return false;
-        }
-
-        for (var i = 0; i < cardName.length; i++) {
-
-            if (
-                cardName.indexOf(searchTerm, i) === i &&
-                isSearchBoundary(cardName, i)
-            ) {
-                return true;
-            }
-
-        }
-
-        return false;
-
-    }
+    sortStatistics(statistics);
 
 
     /*
      * ------------------------------------------------------------
-     * 5. FIELD DETAIL SECTION BUILDER
+     * 5. BUILD TABLES
      * ------------------------------------------------------------
      */
 
     function createEffectTable(title, cardList, effectText) {
 
-        var wrapper = document.createElement("div");
-        wrapper.className = "mb-4";
+        var section = document.createElement("div");
+        section.className = "mt-4";
 
-        var heading = document.createElement("h4");
-        heading.className = "text-main my-4";
-        heading.innerHTML = "<strong>" + title + "</strong>";
-        wrapper.appendChild(heading);
+        var heading = document.createElement("h5");
+        heading.className = "text-center";
+        heading.innerHTML = "<strong>" + escapeHTML(title) + "</strong>";
+        section.appendChild(heading);
 
+        var responsiveDiv = document.createElement("div");
+        responsiveDiv.className = "table-responsive";
 
         var table = document.createElement("table");
-        table.className = "table table-striped table-bordered field-effect-table";
+        table.className =
+            "table table-striped table-bordered field-stats-table mobile-card-table";
 
         var thead = document.createElement("thead");
         thead.innerHTML =
             "<tr>" +
             "<th>Card</th>" +
-            "<th>Monster Type</th>" +
+            "<th>Type</th>" +
             "<th>Effect</th>" +
             "</tr>";
         table.appendChild(thead);
-
 
         var tbody = document.createElement("tbody");
 
@@ -502,7 +353,6 @@
 
             var effectCell = document.createElement("td");
             effectCell.innerHTML = "<strong>" + effectText + "</strong>";
-            effectCell.style.textAlign = "center";
 
             row.appendChild(nameCell);
             row.appendChild(typeCell);
@@ -512,39 +362,40 @@
 
         });
 
-
         table.appendChild(tbody);
-        wrapper.appendChild(table);
+        responsiveDiv.appendChild(table);
+        section.appendChild(responsiveDiv);
 
-        return wrapper;
+        return section;
 
     }
 
 
     function createTypeGroupTable(title, groupList, effectText) {
 
-        var wrapper = document.createElement("div");
-        wrapper.className = "mb-4";
+        var section = document.createElement("div");
+        section.className = "mt-4";
 
-        var heading = document.createElement("h4");
-        heading.className = "text-main my-4";
-        heading.innerHTML = "<strong>" + title + "</strong>";
-        wrapper.appendChild(heading);
+        var heading = document.createElement("h5");
+        heading.className = "text-center";
+        heading.innerHTML = "<strong>" + escapeHTML(title) + "</strong>";
+        section.appendChild(heading);
 
+        var responsiveDiv = document.createElement("div");
+        responsiveDiv.className = "table-responsive";
 
         var table = document.createElement("table");
-        table.className = "table table-striped table-bordered field-type-group-table";
+        table.className =
+            "table table-striped table-bordered field-stats-table mobile-card-table";
 
         var thead = document.createElement("thead");
         thead.innerHTML =
             "<tr>" +
-            "<th>Monster Type</th>" +
-            "<th># of Cards Affected</th>" +
+            "<th>Type</th>" +
+            "<th>Total Monsters</th>" +
             "<th>Effect</th>" +
-            "<th>Monster Cards</th>" +
             "</tr>";
         table.appendChild(thead);
-
 
         var tbody = document.createElement("tbody");
 
@@ -553,44 +404,36 @@
             var row = document.createElement("tr");
 
             var typeCell = document.createElement("td");
-            typeCell.innerHTML = "<strong>" + group.typeName + "</strong>";
-            typeCell.className = "field-group-summary-cell";
+            typeCell.innerHTML = "<strong>" + escapeHTML(group.typeName) + "</strong>";
 
             var countCell = document.createElement("td");
-            countCell.innerHTML = "<strong>" + group.cards.length + "</strong>";
-            countCell.className = "field-group-summary-cell";
+            countCell.innerHTML = "<strong>" + group.count + "</strong>";
 
             var effectCell = document.createElement("td");
             effectCell.innerHTML = "<strong>" + effectText + "</strong>";
-            effectCell.className = "field-group-summary-cell field-group-effect-cell";
-            effectCell.style.textAlign = "center";
-
-            var cardsCell = document.createElement("td");
-            cardsCell.innerHTML = group.cards
-                .map(function (card) {
-                    return '<div class="field-group-card">' +
-                        formatBoldCardLabel(card) +
-                        '</div>';
-                })
-                .join("");
 
             row.appendChild(typeCell);
             row.appendChild(countCell);
             row.appendChild(effectCell);
-            row.appendChild(cardsCell);
 
             tbody.appendChild(row);
 
         });
 
-
         table.appendChild(tbody);
-        wrapper.appendChild(table);
+        responsiveDiv.appendChild(table);
+        section.appendChild(responsiveDiv);
 
-        return wrapper;
+        return section;
 
     }
 
+
+    /*
+     * ------------------------------------------------------------
+     * 6. BUILD EXPANDABLE FIELDS
+     * ------------------------------------------------------------
+     */
 
     function createFieldDetails(entry) {
 
@@ -618,7 +461,7 @@
                 createEffectTable(
                     "Positive Card Effects",
                     entry.positiveCards,
-                    getEffectText(entry, true)
+                    "+" + entry.attackBonus + " ATK / +" + entry.defenseBonus + " DEF"
                 )
             );
 
@@ -626,29 +469,27 @@
                 createTypeGroupTable(
                     "Positive Monster Type Groups",
                     entry.positiveGroups,
-                    getEffectText(entry, true)
+                    "+" + entry.attackBonus + " ATK / +" + entry.defenseBonus + " DEF"
                 )
             );
         }
 
 
-        if (entry.neutralCards.length) {
-            wrapper.appendChild(
-                createEffectTable(
-                    "Neutral Card Effects",
-                    entry.neutralCards,
-                    "0 ATK / 0 DEF"
-                )
-            );
+        wrapper.appendChild(
+            createEffectTable(
+                "Neutral Card Effects",
+                entry.neutralCards,
+                "No effect."
+            )
+        );
 
-            wrapper.appendChild(
-                createTypeGroupTable(
-                    "Neutral Monster Type Groups",
-                    entry.neutralGroups,
-                    "0 ATK / 0 DEF"
-                )
-            );
-        }
+        wrapper.appendChild(
+            createTypeGroupTable(
+                "Neutral Monster Type Groups",
+                entry.neutralGroups,
+                "No effect."
+            )
+        );
 
 
         if (entry.negativeCards.length) {
@@ -656,7 +497,7 @@
                 createEffectTable(
                     "Negative Card Effects",
                     entry.negativeCards,
-                    getEffectText(entry, false)
+                    "-" + entry.attackPenalty + " ATK / -" + entry.defensePenalty + " DEF"
                 )
             );
 
@@ -664,37 +505,24 @@
                 createTypeGroupTable(
                     "Negative Monster Type Groups",
                     entry.negativeGroups,
-                    getEffectText(entry, false)
+                    "-" + entry.attackPenalty + " ATK / -" + entry.defensePenalty + " DEF"
                 )
             );
         }
-
 
         return wrapper;
 
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * 6. RENDER EXPANDABLE FIELD LIST
-     * ------------------------------------------------------------
-     */
-
     function renderFields() {
 
-        var results = statistics.slice();
+        fieldListElement.innerHTML = "";
 
-        sortStatistics(results);
-
-        fieldListContainer.innerHTML = "";
-
-
-        results.forEach(function (entry) {
+        statistics.forEach(function (entry) {
 
             var details = document.createElement("details");
-            details.className = "mb-3 border rounded bg-white p-2";
-
+            details.className = "mb-3 card p-3 shadow-sm";
 
             var summary = document.createElement("summary");
             summary.className = "font-weight-bold p-2";
@@ -716,7 +544,7 @@
             details.appendChild(summary);
             details.appendChild(createFieldDetails(entry));
 
-            fieldListContainer.appendChild(details);
+            fieldListElement.appendChild(details);
 
         });
 
@@ -775,9 +603,172 @@
 
     /*
      * ------------------------------------------------------------
-     * 7. MONSTER FIELD SEARCH TABLE
+     * 7. MONSTER SEARCH
      * ------------------------------------------------------------
      */
+
+    function escapeRegExp(value) {
+
+        return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+    }
+
+
+    function normalizeNumericTerm(value) {
+
+        if (/^[0-9,.]+$/.test(value) && /[0-9]/.test(value)) {
+            return value.replace(/[,.]/g, "");
+        }
+
+        return value;
+
+    }
+
+
+    function isNumericTerm(value) {
+
+        return /^[0-9,.]+$/.test(value) && /[0-9]/.test(value);
+
+    }
+
+
+    function isSearchBoundary(cardName, index) {
+
+        if (index === 0) {
+            return true;
+        }
+
+        var previousCharacter = cardName.charAt(index - 1);
+
+        return /\s/.test(previousCharacter) ||
+            previousCharacter === "-" ||
+            previousCharacter === ".";
+
+    }
+
+
+    function matchesNumericTerm(card, cardName, searchTerm) {
+
+        var normalizedSearchTerm = normalizeNumericTerm(searchTerm);
+
+
+        /*
+         * Card IDs are displayed as exactly three digits (for example,
+         * 007, 030, and 300). A numeric search may therefore use 1, 2,
+         * or 3 digits and still match the corresponding ID prefix. A
+         * four-or-more-digit query is not allowed to collapse leading
+         * zeroes, so 0007 does not become 7 and match card 007.
+         */
+        if (/^[0-9]+$/.test(searchTerm) && searchTerm.length <= 3) {
+
+            var formattedId = String(card.Id).padStart(3, "0");
+            var normalizedId = formattedId.replace(/^0+/, "") || "0";
+
+            /* Card ID searches are exact after ignoring leading zeroes.
+             * For example, 7, 07, and 007 all mean card ID 007, but 70
+             * and 700 are different IDs and must not match. */
+            var normalizedIdSearch = normalizedSearchTerm.replace(/^0+/, "") || "0";
+
+            if (normalizedId === normalizedIdSearch) {
+                return true;
+            }
+
+        }
+
+
+        /*
+         * Numeric text in the actual card name is searched separately
+         * from the card ID. This includes numbers after a # in the name,
+         * such as "#1", and numbers containing grouping punctuation.
+         */
+        var numericPattern = /[0-9][0-9,.]*/g;
+        var match;
+
+
+        while ((match = numericPattern.exec(cardName)) !== null) {
+
+            if (
+                !isSearchBoundary(cardName, match.index) &&
+                cardName.charAt(match.index - 1) !== "#"
+            ) {
+                continue;
+            }
+
+            var normalizedNumber = normalizeNumericTerm(match[0]);
+
+            if (normalizedNumber.indexOf(normalizedSearchTerm) === 0) {
+                return true;
+            }
+
+        }
+
+
+        return false;
+
+    }
+
+
+    function matchesSearchTerm(card, cardName, searchTerm, isStandaloneTerm) {
+
+        if (isNumericTerm(searchTerm)) {
+            return matchesNumericTerm(card, cardName, searchTerm);
+        }
+
+
+        /* A single-character search normally searches only the beginning
+         * of the entire card name. A punctuation-delimited token such as
+         * "D." is also searchable by its first character, but the character
+         * after that punctuation is not treated as a one-character boundary.
+         */
+        if (isStandaloneTerm && searchTerm.length === 1) {
+
+            if (cardName.indexOf(searchTerm) === 0) {
+                return true;
+            }
+
+            /* Every punctuation character is searchable by itself except
+             * apostrophe. Apostrophe is intentionally literal and therefore
+             * requires additional surrounding search text. */
+            if (searchTerm === "'") {
+                return false;
+            }
+
+            if (!/[a-z0-9]/.test(searchTerm)) {
+                return cardName.indexOf(searchTerm) !== -1;
+            }
+
+            var punctuationDelimitedPattern = new RegExp(
+                "(^|\\s|[-.])" + escapeRegExp(searchTerm) + "\\."
+            );
+
+            return punctuationDelimitedPattern.test(cardName);
+
+        }
+
+
+        /* A period can be searched by itself, but not as one component
+         * of a multi-term query (for example, "the ."). */
+        if (!isStandaloneTerm && searchTerm === ".") {
+            return false;
+        }
+
+
+        for (var i = 0; i < cardName.length; i++) {
+
+            if (
+                cardName.indexOf(searchTerm, i) === i &&
+                isSearchBoundary(cardName, i)
+            ) {
+                return true;
+            }
+
+        }
+
+
+        return false;
+
+    }
+
 
     function getFilteredMonsters() {
 
@@ -790,6 +781,8 @@
         }
 
 
+        /* One trailing space is tolerated. Other spaces remain literal,
+         * so consecutive internal/trailing spaces do not collapse. */
         if (searchText.charAt(searchText.length - 1) === " ") {
             searchText = searchText.slice(0, -1);
         }
@@ -949,9 +942,19 @@
 
 })();
 
-
 /*
  * ------------------------------------------------------------
- * END OF FILE
+ * FILE: public/javascripts/fieldStats.js
+ * ------------------------------------------------------------
+ *
+ * Field Statistics
+ *
+ * Shows all Field cards as expandable sections and provides a
+ * reverse lookup that starts with a monster card and shows how
+ * every Field affects it.
+ *
+ * Field identity/effect definitions live in data/fields.js.
+ * The main card database still classifies these cards as Magic
+ * (Type 20); fieldList provides the additional Field designation.
  * ------------------------------------------------------------
  */
