@@ -106,49 +106,51 @@
         });
 
 
-        var statistic = {
+        var entry = {
             card: card,
             partnerIds: partnerIds,
             count: partnerIds.length
         };
 
-        statistics.push(statistic);
-        statisticsById[card.Id] = statistic;
+
+        statistics.push(entry);
+        statisticsById[card.Id] = entry;
 
     });
 
 
     /*
      * ------------------------------------------------------------
-     * 4. CALCULATE GLOBAL RANKS
+     * 4. DISPLAY HELPERS
      * ------------------------------------------------------------
      */
 
-        function formatCardId(id) {
+    function escapeHTML(text) {
+
+        var div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+
+    }
+
+
+    function formatCardId(id) {
+
         return "#" + String(id).padStart(3, "0");
+
     }
 
 
-    function escapeHTML(value) {
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/\"/g, "&quot;")
-            .replace(/\'/g, "&#039;");
+    function getCardTypeName(card) {
+
+        if (!card) {
+            return "Unknown";
+        }
+
+        return cardTypes[card.Type] || "Unknown";
+
     }
 
-
-    function formatBoldCardLabel(card) {
-        return "<strong>" +
-            escapeHTML(formatCardId(card.Id) + " " + card.Name) +
-            "</strong>";
-    }
-
-
-    function formatGuardianStar(value) {
-        return starNames[value - 1] || starNames[0];
-    }
 
     var guardianStarSymbols = {
         Sun: "☉", Mercury: "☿", Venus: "♀", Moon: "☾",
@@ -162,88 +164,86 @@
     }
 
 
-    function formatMonsterSummary(card) {
-        return (
-            formatBoldCardLabel(card) +
-            "<br>Type: " +
-            escapeHTML(cardTypes[card.Type] || "Unknown") +
-            " — Guardian Stars: " +
-            escapeHTML(formatGuardianStarWithSymbol(card.GuardianStarA)) +
-            " / " +
-            escapeHTML(formatGuardianStarWithSymbol(card.GuardianStarB)) +
-            " — " +
-            escapeHTML(card.Attack) +
-            "A / " +
-            escapeHTML(card.Defense) +
-            "D"
-        );
+    function formatGuardianStars(card) {
+
+        return formatGuardianStarWithSymbol(card.GuardianStarA) + " / " + formatGuardianStarWithSymbol(card.GuardianStarB);
+
     }
 
 
-function calculateGlobalRanks() {
+    function formatCardDetails(card) {
 
-        var rankedResults = statistics.slice();
-
-
-        rankedResults.sort(function (a, b) {
-
-            if (b.count !== a.count) {
-                return b.count - a.count;
-            }
-
-            return a.card.Id - b.card.Id;
-
-        });
-
-
-        var i = 0;
-
-
-        while (i < rankedResults.length) {
-
-            var count = rankedResults[i].count;
-            var startRank = i + 1;
-            var j = i + 1;
-
-
-            while (
-                j < rankedResults.length &&
-                rankedResults[j].count === count
-            ) {
-
-                j++;
-
-            }
-
-
-            var endRank = j;
-            var label;
-
-
-            if (startRank === endRank) {
-                label = "Rank " + startRank;
-            } else {
-                label =
-                    "Rank " +
-                    startRank +
-                    "–" +
-                    endRank;
-            }
-
-
-            for (var k = i; k < j; k++) {
-                globalRankLabels[rankedResults[k].card.Id] = label;
-            }
-
-
-            i = j;
-
+        if (!card) {
+            return "";
         }
 
+        var details = "Type: " + getCardTypeName(card);
+
+        if (isMonster(card)) {
+            details +=
+                " — Guardian Stars: " +
+                formatGuardianStars(card) +
+                " — " +
+                card.Attack +
+                "A / " +
+                card.Defense +
+                "D";
+        }
+
+        return details;
+
     }
 
 
-    calculateGlobalRanks();
+    function formatCardLabel(card) {
+
+        return formatCardId(card.Id) + " " + card.Name;
+
+    }
+
+
+    function formatBoldCardLabel(card) {
+
+        return "<strong>" + escapeHTML(formatCardLabel(card)) + "</strong>";
+
+    }
+
+
+    function formatEquipDetailsSummary(card) {
+
+        if (!card) {
+            return "";
+        }
+
+        var details = escapeHTML(getCardTypeName(card));
+
+        if (isMonster(card)) {
+            details +=
+                "<br>" +
+                escapeHTML(
+                    formatGuardianStars(card) +
+                    " — " +
+                    card.Attack +
+                    "A / " +
+                    card.Defense +
+                    "D"
+                );
+        }
+
+        return details;
+
+    }
+
+
+    function formatEquipTargetCell(card) {
+
+        return (
+            formatBoldCardLabel(card) +
+            "<br>" +
+            formatEquipDetailsSummary(card)
+        );
+
+    }
 
 
     /*
@@ -252,12 +252,12 @@ function calculateGlobalRanks() {
      * ------------------------------------------------------------
      */
 
-    function sortStatistics(results) {
+    function sortStatistics(list) {
 
         var sortMode = sortSelect.value;
 
 
-        results.sort(function (a, b) {
+        list.sort(function (a, b) {
 
             if (sortMode === "count-desc") {
 
@@ -266,6 +266,7 @@ function calculateGlobalRanks() {
                 }
 
                 return a.card.Id - b.card.Id;
+
             }
 
 
@@ -276,6 +277,7 @@ function calculateGlobalRanks() {
                 }
 
                 return a.card.Id - b.card.Id;
+
             }
 
 
@@ -291,20 +293,26 @@ function calculateGlobalRanks() {
 
             if (sortMode === "name-desc") {
 
-                var nameComparison = b.card.Name.localeCompare(a.card.Name);
+                var nameDescResult = b.card.Name.localeCompare(a.card.Name);
 
-                if (nameComparison !== 0) {
-                    return nameComparison;
+                if (nameDescResult !== 0) {
+                    return nameDescResult;
                 }
 
-                return b.card.Id - a.card.Id;
+                return a.card.Id - b.card.Id;
+
             }
 
 
-            var nameComparison = a.card.Name.localeCompare(b.card.Name);
+            /*
+             * Default:
+             * name-asc
+             */
 
-            if (nameComparison !== 0) {
-                return nameComparison;
+            var nameAscResult = a.card.Name.localeCompare(b.card.Name);
+
+            if (nameAscResult !== 0) {
+                return nameAscResult;
             }
 
             return a.card.Id - b.card.Id;
@@ -313,6 +321,103 @@ function calculateGlobalRanks() {
 
     }
 
+
+    /*
+     * ------------------------------------------------------------
+     * 6. RANK CALCULATION
+     * ------------------------------------------------------------
+     *
+     * IMPORTANT:
+     *
+     * This is competition ranking.
+     *
+     * Example:
+     *
+     * Counts:
+     *
+     * 20
+     * 19
+     * 18
+     * 18
+     * 18
+     * 18
+     * 17
+     *
+     * Ranks:
+     *
+     * 1
+     * 2
+     * 3--6
+     * 3--6
+     * 3--6
+     * 3--6
+     * 7
+     */
+
+    function calculateGlobalRanks() {
+
+        var rankedResults = statistics.slice();
+
+
+        rankedResults.sort(function (a, b) {
+
+            if (b.count !== a.count) {
+                return b.count - a.count;
+            }
+
+            return a.card.Id - b.card.Id;
+
+        });
+
+
+        var rankLabels = {};
+        var i = 0;
+
+
+        while (i < rankedResults.length) {
+
+            var count = rankedResults[i].count;
+            var startRank = i + 1;
+            var j = i + 1;
+
+
+            while (
+                j < rankedResults.length &&
+                rankedResults[j].count === count
+            ) {
+                j++;
+            }
+
+
+            var endRank = j;
+            var label;
+
+
+            if (startRank === endRank) {
+                label = "Rank " + startRank;
+            } else {
+                label = "Rank " + startRank + "–" + endRank;
+            }
+
+
+            for (var k = i; k < j; k++) {
+                rankLabels[rankedResults[k].card.Id] = label;
+            }
+
+            i = j;
+
+        }
+
+        return rankLabels;
+
+    }
+
+
+    /*
+     * ------------------------------------------------------------
+     * 7. FILTERING & SEARCH
+     * ------------------------------------------------------------
+     */
 
     function escapeSearchRegExp(value) {
 
@@ -359,56 +464,27 @@ function calculateGlobalRanks() {
         var normalizedSearchTerm = normalizeNumericTerm(searchTerm);
 
 
-        /*
-         * Card IDs are displayed as exactly three digits (for example,
-         * 007, 030, and 300). A numeric search may therefore use 1, 2,
-         * or 3 digits and still match the corresponding ID prefix. A
-         * four-or-more-digit query is not allowed to collapse leading
-         * zeroes, so 0007 does not become 7 and match card 007.
-         */
         if (/^[0-9]+$/.test(searchTerm) && searchTerm.length <= 3) {
 
             var formattedId = String(card.Id).padStart(3, "0");
             var normalizedId = formattedId.replace(/^0+/, "") || "0";
 
-            /* Card ID searches are exact after ignoring leading zeroes.
-             * For example, 7, 07, and 007 all mean card ID 007, but 70
-             * and 700 are different IDs and must not match. */
-            var normalizedIdSearch = normalizedSearchTerm.replace(/^0+/, "") || "0";
-
-            if (normalizedId === normalizedIdSearch) {
-                return true;
-            }
-
-        }
-
-
-        /*
-         * Numeric text in the actual card name is searched separately
-         * from the card ID. This includes numbers after a # in the name,
-         * such as "#1", and numbers containing grouping punctuation.
-         */
-        var numericPattern = /[0-9][0-9,.]*/g;
-        var match;
-
-
-        while ((match = numericPattern.exec(cardName)) !== null) {
-
             if (
-                !isSearchBoundary(cardName, match.index) &&
-                cardName.charAt(match.index - 1) !== "#"
+                formattedId.indexOf(searchTerm) === 0 ||
+                normalizedId.indexOf(normalizedSearchTerm) === 0
             ) {
-                continue;
-            }
-
-            var normalizedNumber = normalizeNumericTerm(match[0]);
-
-            if (normalizedNumber.indexOf(normalizedSearchTerm) === 0) {
                 return true;
             }
 
         }
 
+
+        if (
+            isNumericTerm(searchTerm) &&
+            cardName.indexOf(normalizedSearchTerm) !== -1
+        ) {
+            return true;
+        }
 
         return false;
 
@@ -422,20 +498,12 @@ function calculateGlobalRanks() {
         }
 
 
-        /* A single-character search normally searches only the beginning
-         * of the entire card name. A punctuation-delimited token such as
-         * "D." is also searchable by its first character, but the character
-         * after that punctuation is not treated as a one-character boundary.
-         */
         if (isStandaloneTerm && searchTerm.length === 1) {
 
             if (cardName.indexOf(searchTerm) === 0) {
                 return true;
             }
 
-            /* Every punctuation character is searchable by itself except
-             * apostrophe. Apostrophe is intentionally literal and therefore
-             * requires additional surrounding search text. */
             if (searchTerm === "'") {
                 return false;
             }
@@ -453,8 +521,6 @@ function calculateGlobalRanks() {
         }
 
 
-        /* A period can be searched by itself, but not as one component
-         * of a multi-term query (for example, "the ."). */
         if (!isStandaloneTerm && searchTerm === ".") {
             return false;
         }
@@ -471,72 +537,66 @@ function calculateGlobalRanks() {
 
         }
 
-
         return false;
 
     }
 
 
-    /*
-     * ------------------------------------------------------------
-     * 6. FILTERING
-     * ------------------------------------------------------------
-     *
-     * Filtering only controls visibility.
-     * Global rank values are preserved.
-     * ------------------------------------------------------------
-     */
-
     function getFilteredStatistics() {
 
         var rawSearchText = filterInput.value.toLowerCase();
-        var searchText = rawSearchText;
+        var trimmedSearchText = rawSearchText.trim();
 
-        if (searchText === "") {
+
+        if (!trimmedSearchText) {
             return statistics.slice();
         }
 
-        if (searchText.charAt(searchText.length - 1) === " ") {
-            searchText = searchText.slice(0, -1);
-        }
 
-        if (
-            searchText === "" ||
-            searchText.charAt(0) === " " ||
-            searchText.indexOf("  ") !== -1
-        ) {
-            return [];
-        }
-
-        var searchTerms = searchText.split(" ");
+        var searchTerms = trimmedSearchText.split(/\s+/);
         var isStandaloneTerm = searchTerms.length === 1;
+
 
         return statistics.filter(function (entry) {
 
             var cardName = entry.card.Name.toLowerCase();
 
             return searchTerms.every(function (searchTerm) {
+
                 return matchesSearchTerm(
                     entry.card,
                     cardName,
                     searchTerm,
                     isStandaloneTerm
                 );
+
             });
 
         });
 
     }
 
+
     /*
      * ------------------------------------------------------------
-     * 7. RENDER MAIN TABLE
+     * 8. RENDER TABLE
      * ------------------------------------------------------------
      */
 
-    function renderStatistics() {
+    function renderTable() {
 
         var results = getFilteredStatistics();
+
+
+        if (!results.length) {
+
+            tableBody.innerHTML =
+                '<tr><td colspan="3" class="text-center">No equip cards found.</td></tr>';
+
+            return;
+
+        }
+
 
         sortStatistics(results);
 
@@ -561,7 +621,8 @@ function calculateGlobalRanks() {
 
 
             var countCell = document.createElement("td");
-            countCell.textContent = entry.count;
+            countCell.innerHTML = "<strong>" + entry.count + "</strong>";
+            countCell.style.textAlign = "center";
 
 
             row.appendChild(rankCell);
@@ -580,7 +641,7 @@ function calculateGlobalRanks() {
 
     /*
      * ------------------------------------------------------------
-     * 8. RENDER EQUIP DETAILS
+     * 9. RENDER EQUIP DETAILS
      * ------------------------------------------------------------
      */
 
@@ -597,76 +658,95 @@ function calculateGlobalRanks() {
         detailsTitle.innerHTML =
             formatBoldCardLabel(entry.card) +
             "<br>" +
-            entry.count +
-            " Compatible Monsters";
+            '<span class="fusion-card-summary-secondary">' +
+            escapeHTML(formatCardDetails(entry.card)) +
+            "</span>";
 
 
-        detailsContainer.innerHTML = "";
+        var partnerCards = entry.partnerIds
+            .map(function (id) {
+                return cardById[id];
+            })
+            .filter(Boolean);
+
+
+        partnerCards.sort(function (a, b) {
+
+            var nameResult = a.Name.localeCompare(b.Name);
+
+            if (nameResult !== 0) {
+                return nameResult;
+            }
+
+            return a.Id - b.Id;
+
+        });
+
+
+        if (!partnerCards.length) {
+
+            detailsContainer.innerHTML =
+                '<p class="text-center">No compatible monsters found.</p>';
+
+            detailsSection.style.display = "block";
+
+            return;
+
+        }
 
 
         var table = document.createElement("table");
 
-        table.className = "table table-striped table-bordered";
+        table.className = "table table-striped table-bordered text-center";
 
 
         var thead = document.createElement("thead");
         var headerRow = document.createElement("tr");
-        var monsterHeader = document.createElement("th");
 
-        monsterHeader.textContent = "Compatible Monster";
+        var th1 = document.createElement("th");
+        th1.textContent = "Compatible Monsters";
 
-        headerRow.appendChild(monsterHeader);
+        headerRow.appendChild(th1);
         thead.appendChild(headerRow);
         table.appendChild(thead);
 
 
         var tbody = document.createElement("tbody");
 
-        var monsterCards = entry.partnerIds
-            .map(function (monsterId) {
-                return cardById[monsterId];
-            })
-            .filter(function (monsterCard) {
-                return !!monsterCard;
-            });
 
-
-        monsterCards.sort(function (a, b) {
-            return a.Id - b.Id;
-        });
-
-
-        monsterCards.forEach(function (monsterCard) {
+        partnerCards.forEach(function (monsterCard) {
 
             var row = document.createElement("tr");
-            var monsterCell = document.createElement("td");
-            monsterCell.className = "equip-monster-summary";
-            monsterCell.innerHTML = formatMonsterSummary(monsterCard);
 
-            row.appendChild(monsterCell);
+            var cell = document.createElement("td");
+            cell.className = "equip-monster-summary";
+            cell.innerHTML = formatEquipTargetCell(monsterCard);
+
+            row.appendChild(cell);
             tbody.appendChild(row);
 
         });
 
 
         table.appendChild(tbody);
+
+        detailsContainer.innerHTML = "";
         detailsContainer.appendChild(table);
 
-        detailsSection.style.display = "";
-
-        detailsSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+        detailsSection.style.display = "block";
 
     }
 
 
     /*
      * ------------------------------------------------------------
-     * 9. EVENT HANDLERS
+     * 10. EVENT LISTENERS
      * ------------------------------------------------------------
      */
+
+    sortSelect.addEventListener("change", renderTable);
+    filterInput.addEventListener("input", renderTable);
+
 
     tableBody.addEventListener("click", function (event) {
 
@@ -676,30 +756,28 @@ function calculateGlobalRanks() {
             return;
         }
 
-        showEquipDetails(row.dataset.cardId);
+        var cardId = parseInt(row.dataset.cardId, 10);
 
-    });
+        if (!cardId) {
+            return;
+        }
 
+        showEquipDetails(cardId);
 
-    sortSelect.addEventListener("change", function () {
-        renderStatistics();
-    });
+        detailsSection.scrollIntoView({ behavior: "smooth" });
 
-
-    filterInput.addEventListener("input", function () {
-        renderStatistics();
     });
 
 
     /*
      * ------------------------------------------------------------
-     * 10. INITIAL RENDER
+     * 11. INITIAL RENDER
      * ------------------------------------------------------------
      */
 
-    detailsSection.style.display = "none";
+    globalRankLabels = calculateGlobalRanks();
 
-    renderStatistics();
+    renderTable();
 
 })();
 
