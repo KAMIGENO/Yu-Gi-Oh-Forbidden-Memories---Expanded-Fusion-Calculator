@@ -99,12 +99,9 @@
      * For each card, count the number of UNIQUE cards that
      * it can fuse with.
      *
-     * Example:
-     *
-     * Card A + Card B -> Result 1
-     * Card A + Card B -> Result 2
-     *
-     * Card B is still only counted ONCE as a fusion partner.
+     * In this game, a fusion takes two cards and produces
+     * a result card. We want to know how many cards can be
+     * combined with the given card.
      */
 
     fusionsList.forEach(function (fusionList, cardId) {
@@ -161,31 +158,41 @@
      * ------------------------------------------------------------
      */
 
-    function escapeHTML(value) {
+    function escapeHTML(text) {
 
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#39;");
+        var div = document.createElement("div");
+
+        div.textContent = text;
+
+        return div.innerHTML;
+
+    }
+
+
+    function formatCardId(id) {
+
+        return "#" + String(id).padStart(3, "0");
+
+    }
+
+
+    function getCardTypeName(card) {
+
+        if (!card) {
+            return "Unknown";
+        }
+
+        return cardTypes[card.Type] || "Unknown";
 
     }
 
 
     function isMonster(card) {
+
         return !!card && card.Type < 20;
+
     }
 
-
-    function formatCardId(id) {
-        return "#" + String(id).padStart(3, "0");
-    }
-
-
-    function formatGuardianStar(value) {
-        return starNames[value - 1] || starNames[0];
-    }
 
     var guardianStarSymbols = {
         Sun: "☉", Mercury: "☿", Venus: "♀", Moon: "☾",
@@ -251,13 +258,14 @@
      * ------------------------------------------------------------
      */
 
-    function sortStatistics(results) {
+    function sortStatistics(list) {
 
-        var sortType = sortSelect.value;
+        var sortMode = sortSelect.value;
 
-        results.sort(function (a, b) {
 
-            if (sortType === "count-desc") {
+        list.sort(function (a, b) {
+
+            if (sortMode === "count-desc") {
 
                 if (b.count !== a.count) {
                     return b.count - a.count;
@@ -268,7 +276,7 @@
             }
 
 
-            if (sortType === "count-asc") {
+            if (sortMode === "count-asc") {
 
                 if (a.count !== b.count) {
                     return a.count - b.count;
@@ -279,21 +287,21 @@
             }
 
 
-            if (sortType === "id-asc") {
+            if (sortMode === "id-asc") {
 
                 return a.card.Id - b.card.Id;
 
             }
 
 
-            if (sortType === "id-desc") {
+            if (sortMode === "id-desc") {
 
                 return b.card.Id - a.card.Id;
 
             }
 
 
-            if (sortType === "name-desc") {
+            if (sortMode === "name-desc") {
 
                 var nameDescResult = b.card.Name.localeCompare(a.card.Name);
 
@@ -360,23 +368,22 @@
 
         var rankedResults = statistics.slice();
 
-        /*
-         * Rankings are always based on fusion-partner count,
-         * regardless of the table's current display sort.
-         */
+
         rankedResults.sort(function (a, b) {
 
             if (b.count !== a.count) {
                 return b.count - a.count;
             }
 
-            return a.card.Name.localeCompare(b.card.Name);
+            return a.card.Id - b.card.Id;
 
         });
+
 
         var rankLabels = {};
 
         var i = 0;
+
 
         while (i < rankedResults.length) {
 
@@ -519,44 +526,22 @@
             var formattedId = String(card.Id).padStart(3, "0");
             var normalizedId = formattedId.replace(/^0+/, "") || "0";
 
-            /* Card ID searches are exact after ignoring leading zeroes.
-             * For example, 7, 07, and 007 all mean card ID 007, but 70
-             * and 700 are different IDs and must not match. */
-            var normalizedIdSearch = normalizedSearchTerm.replace(/^0+/, "") || "0";
-
-            if (normalizedId === normalizedIdSearch) {
-                return true;
-            }
-
-        }
-
-
-        /*
-         * Numeric text in the actual card name is searched separately
-         * from the card ID. This includes numbers after a # in the name,
-         * such as "#1", and numbers containing grouping punctuation.
-         */
-        var numericPattern = /[0-9][0-9,.]*/g;
-        var match;
-
-
-        while ((match = numericPattern.exec(cardName)) !== null) {
-
             if (
-                !isSearchBoundary(cardName, match.index) &&
-                cardName.charAt(match.index - 1) !== "#"
+                formattedId.indexOf(searchTerm) === 0 ||
+                normalizedId.indexOf(normalizedSearchTerm) === 0
             ) {
-                continue;
-            }
-
-            var normalizedNumber = normalizeNumericTerm(match[0]);
-
-            if (normalizedNumber.indexOf(normalizedSearchTerm) === 0) {
                 return true;
             }
 
         }
 
+
+        if (
+            isNumericTerm(searchTerm) &&
+            cardName.indexOf(normalizedSearchTerm) !== -1
+        ) {
+            return true;
+        }
 
         return false;
 
@@ -570,10 +555,8 @@
         }
 
 
-        /* A single-character search normally searches only the beginning
-         * of the entire card name. A punctuation-delimited token such as
-         * "D." is also searchable by its first character, but the character
-         * after that punctuation is not treated as a one-character boundary.
+        /*
+         * Single-character query
          */
         if (isStandaloneTerm && searchTerm.length === 1) {
 
@@ -581,9 +564,6 @@
                 return true;
             }
 
-            /* Every punctuation character is searchable by itself except
-             * apostrophe. Apostrophe is intentionally literal and therefore
-             * requires additional surrounding search text. */
             if (searchTerm === "'") {
                 return false;
             }
@@ -601,13 +581,17 @@
         }
 
 
-        /* A period can be searched by itself, but not as one component
-         * of a multi-term query (for example, "the ."). */
+        /*
+         * Standalone period
+         */
         if (!isStandaloneTerm && searchTerm === ".") {
             return false;
         }
 
 
+        /*
+         * Substring search
+         */
         for (var i = 0; i < cardName.length; i++) {
 
             if (
@@ -619,7 +603,6 @@
 
         }
 
-
         return false;
 
     }
@@ -627,54 +610,50 @@
 
     /*
      * ------------------------------------------------------------
-     * FILTERING
+     * FILTER
      * ------------------------------------------------------------
      */
 
     function getFilteredStatistics() {
 
         var rawSearchText = filterInput.value.toLowerCase();
-        var searchText = rawSearchText;
+        var trimmedSearchText = rawSearchText.trim();
 
-        if (searchText === "") {
+
+        if (!trimmedSearchText) {
+
             return statistics.slice();
+
         }
 
-        if (searchText.charAt(searchText.length - 1) === " ") {
-            searchText = searchText.slice(0, -1);
-        }
 
-        if (
-            searchText === "" ||
-            searchText.charAt(0) === " " ||
-            searchText.indexOf("  ") !== -1
-        ) {
-            return [];
-        }
-
-        var searchTerms = searchText.split(" ");
+        var searchTerms = trimmedSearchText.split(/\s+/);
         var isStandaloneTerm = searchTerms.length === 1;
+
 
         return statistics.filter(function (entry) {
 
             var cardName = entry.card.Name.toLowerCase();
 
             return searchTerms.every(function (searchTerm) {
+
                 return matchesSearchTerm(
                     entry.card,
                     cardName,
                     searchTerm,
                     isStandaloneTerm
                 );
+
             });
 
         });
 
     }
 
+
     /*
      * ------------------------------------------------------------
-     * RENDER MAIN TABLE
+     * RENDER STATISTICS TABLE
      * ------------------------------------------------------------
      */
 
@@ -682,21 +661,25 @@
 
         var results = getFilteredStatistics();
 
+        var globalRankLabels = getGlobalRankLabels();
+
+
         sortStatistics(results);
-
-
-        /*
-         * Global ranks are calculated from the complete statistics set.
-         * Filtering only changes which rows are visible.
-         */
-
-        var rankLabels = getGlobalRankLabels();
-
 
         tableBody.innerHTML = "";
 
 
-        results.forEach(function (entry, index) {
+        if (results.length === 0) {
+
+            tableBody.innerHTML =
+                '<tr><td colspan="3" class="text-center">No cards found.</td></tr>';
+
+            return;
+
+        }
+
+
+        results.forEach(function (entry) {
 
             var row = document.createElement("tr");
 
@@ -706,17 +689,17 @@
 
 
             /*
-             * Rank
+             * Global rank
              */
 
             var rankCell = document.createElement("td");
 
-            rankCell.textContent = rankLabels[entry.card.Id];
+            rankCell.textContent = globalRankLabels[entry.card.Id];
             rankCell.style.verticalAlign = "middle";
 
 
             /*
-             * Card name
+             * Card name and details
              */
 
             var nameCell = document.createElement("td");
@@ -731,7 +714,8 @@
 
             var countCell = document.createElement("td");
 
-            countCell.textContent = entry.count;
+            countCell.innerHTML = "<strong>" + entry.count + "</strong>";
+            countCell.style.textAlign = "center";
             countCell.style.verticalAlign = "middle";
 
 
@@ -744,156 +728,165 @@
 
         });
 
-
-
     }
 
 
     /*
      * ------------------------------------------------------------
-     * RENDER CARD DETAILS
+     * RENDER DETAILS
      * ------------------------------------------------------------
-     *
-     * Clicking a card in the statistics table shows every card
-     * that it can fuse with and the resulting card.
      */
 
     function showCardDetails(cardId) {
 
-        var entry = statistics.find(function (item) {
+        var card = cardById[cardId];
 
-            return String(item.card.Id) === String(cardId);
-
-        });
-
-
-        if (!entry) {
-
+        if (!card) {
             return;
-
         }
 
 
+        /*
+         * Title
+         */
+
         detailsTitle.innerHTML =
-            formatBoldCardLabel(entry.card) +
+            formatBoldCardLabel(card) +
             "<br>" +
-            entry.count +
-            " Fusion Partners";
+            '<span class="fusion-card-summary-secondary">' +
+            escapeHTML(formatCardDetails(card)) +
+            "</span>";
 
 
         detailsContainer.innerHTML = "";
 
 
         /*
-         * Create the details table.
+         * Build list of fusions
          */
 
-        var table = document.createElement("table");
+        var fusions = [];
 
-        table.className =
-            "table table-striped table-bordered";
-
-
-        /*
-         * Table header.
-         */
-
-        var thead = document.createElement("thead");
-
-        var headerRow = document.createElement("tr");
-
-        var partnerHeader = document.createElement("th");
-
-        partnerHeader.textContent = "Fusion Partner";
-
-        var resultHeader = document.createElement("th");
-
-        resultHeader.textContent = "Result";
+        var seenFusions = new Set();
 
 
-        headerRow.appendChild(partnerHeader);
-        headerRow.appendChild(resultHeader);
+        var cardFusions = fusionsList[card.Id];
 
-        thead.appendChild(headerRow);
+        if (cardFusions) {
 
-        table.appendChild(thead);
+            cardFusions.forEach(function (fusion) {
 
+                var key = fusion.card + "-" + fusion.result;
 
-        /*
-         * Table body.
-         */
+                if (!seenFusions.has(key)) {
 
-        var tbody = document.createElement("tbody");
+                    seenFusions.add(key);
 
+                    fusions.push({
+                        partner: cardById[fusion.card],
+                        result: cardById[fusion.result]
+                    });
 
-        /*
-         * Get the fusion list for this card.
-         */
-
-        var fusionList = fusionsList[entry.card.Id];
-
-
-        var detailEntries = [];
-
-        if (fusionList) {
-
-            fusionList.forEach(function (fusionEntry) {
-
-                var partnerId = fusionEntry.card;
-
-                detailEntries.push({
-                    partnerCard: cardById[partnerId],
-                    resultCard: cardById[fusionEntry.result],
-                    isGlitch: false
-                });
+                }
 
             });
 
         }
 
 
-        (glitchFusionDetails[entry.card.Id] || []).forEach(function (glitchDetail) {
+        (glitchFusionDetails[card.Id] || []).forEach(function (glitchDetail) {
 
-            detailEntries.push({
-                partnerCard: cardById[glitchDetail.partnerId],
-                resultCard: cardById[glitchDetail.resultId],
-                isGlitch: true
-            });
+            var key = glitchDetail.partnerId + "-" + glitchDetail.resultId;
 
-        });
+            if (!seenFusions.has(key)) {
 
+                seenFusions.add(key);
 
-        detailEntries.sort(function (a, b) {
+                fusions.push({
+                    partner: cardById[glitchDetail.partnerId],
+                    result: cardById[glitchDetail.resultId]
+                });
 
-            var idA = a.partnerCard ? a.partnerCard.Id : Infinity;
-            var idB = b.partnerCard ? b.partnerCard.Id : Infinity;
-
-            return idA - idB;
+            }
 
         });
 
 
-        detailEntries.forEach(function (detail) {
+        if (fusions.length === 0) {
+
+            detailsContainer.innerHTML =
+                '<p class="text-center">No fusions found.</p>';
+
+            detailsSection.style.display = "";
+
+            return;
+
+        }
+
+
+        /*
+         * Sort fusions by partner name, then by result name.
+         */
+
+        fusions.sort(function (a, b) {
+
+            var partnerNameCompare =
+                a.partner.Name.localeCompare(b.partner.Name);
+
+            if (partnerNameCompare !== 0) {
+
+                return partnerNameCompare;
+
+            }
+
+
+            return a.result.Name.localeCompare(b.result.Name);
+
+        });
+
+
+        /*
+         * Build table
+         */
+
+        var table = document.createElement("table");
+
+        table.className = "table table-striped table-bordered text-center";
+
+
+        var thead = document.createElement("thead");
+
+        thead.className = "thead-dark";
+
+        thead.innerHTML =
+            "<tr>" +
+            "<th>Fusion Partner</th>" +
+            "<th>Result</th>" +
+            "</tr>";
+
+        table.appendChild(thead);
+
+
+        var tbody = document.createElement("tbody");
+
+
+        fusions.forEach(function (fusion) {
 
             var row = document.createElement("tr");
+
+
             var partnerCell = document.createElement("td");
             var resultCell = document.createElement("td");
 
-            if (detail.partnerCard) {
-                partnerCell.innerHTML = formatCardCell(detail.partnerCard);
-            } else {
-                partnerCell.textContent = "Unknown Card";
-            }
 
-            if (detail.resultCard) {
-                resultCell.innerHTML =
-                    formatBoldCardLabel(detail.resultCard) +
-                    (detail.isGlitch ? " <strong>(Glitch Fusion)</strong>" : "") +
-                    "<br>" +
-                    escapeHTML(formatCardDetails(detail.resultCard));
-            } else {
-                resultCell.textContent = "Unknown Result";
-            }
+            partnerCell.innerHTML = formatCardCell(fusion.partner);
+
+            resultCell.innerHTML = formatCardCell(fusion.result);
+
+
+            partnerCell.style.verticalAlign = "middle";
+            resultCell.style.verticalAlign = "middle";
+
 
             row.appendChild(partnerCell);
             row.appendChild(resultCell);
@@ -992,3 +985,10 @@
     renderStatistics();
 
 })();
+
+
+/*
+ * ------------------------------------------------------------
+ * END OF FILE
+ * ------------------------------------------------------------
+ */
