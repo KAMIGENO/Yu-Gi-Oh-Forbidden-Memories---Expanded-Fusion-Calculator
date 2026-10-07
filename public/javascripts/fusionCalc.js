@@ -574,7 +574,7 @@ function canEquip(equipCard, targetCard) {
 }
 
 
-function buildEquipTargets(cards) {
+function buildEquipTargets(cards, rituals) {
 
     /*
      * The card database identifies Equip cards directly through their
@@ -640,6 +640,32 @@ function buildEquipTargets(cards) {
         });
 
     });
+
+
+    if (Array.isArray(rituals)) {
+
+        rituals.forEach(function (ritual) {
+
+            if (!ritual || !ritual.result || !isMonster(ritual.result)) {
+                return;
+            }
+
+            var depth = 4;
+            var current = reachable[ritual.result.Id];
+
+            if (!current || depth < current.depth) {
+
+                reachable[ritual.result.Id] = {
+                    card: ritual.result,
+                    depth: depth,
+                    steps: []
+                };
+
+            }
+
+        });
+
+    }
 
 
     return equipCards.map(function (equipCard) {
@@ -883,7 +909,7 @@ function getFieldsForCard(card) {
 }
 
 
-function fieldsToHTML(cards, chains) {
+function fieldsToHTML(cards, chains, rituals) {
 
     var fields = {};
     var handCardIds = {};
@@ -946,6 +972,31 @@ function fieldsToHTML(cards, chains) {
         candidateMonsters.push(finalResult);
 
     });
+
+
+    if (Array.isArray(rituals)) {
+
+        rituals.forEach(function (ritual) {
+
+            if (!ritual || !ritual.result || !isMonster(ritual.result)) {
+                return;
+            }
+
+            var finalResult = ritual.result;
+            var depth = 4;
+
+            if (fusionDepths[finalResult.Id] == null || depth < fusionDepths[finalResult.Id]) {
+                fusionDepths[finalResult.Id] = depth;
+            }
+
+            if (!seenCandidates[finalResult.Id]) {
+                seenCandidates[finalResult.Id] = true;
+                candidateMonsters.push(finalResult);
+            }
+
+        });
+
+    }
 
 
     fieldList.forEach(function (definition) {
@@ -1074,15 +1125,16 @@ function findFusions() {
 
 
     var chains = buildFusionChains(cards);
-    var equipEntries = buildEquipTargets(cards);
-
-
     var rituals = findRituals(cards);
+    var equipEntries = buildEquipTargets(cards, rituals);
+
+
     var fields = fieldsToHTML(
         cards.filter(function (card) {
             return isMonster(card);
         }),
-        chains
+        chains,
+        rituals
     );
 
 
