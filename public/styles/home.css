@@ -26,6 +26,7 @@
 
 html {
     font-size: 16.8px;
+    overflow-y: scroll;
 }
 
 body,
@@ -68,25 +69,23 @@ h6, .h6 { font-size: 16.8px; }
 }
 
 .text-secondary,
-.text-muted,
-.text-black-50 {
+.text-muted {
     color: #4E4E4E !important;
 }
 
 
 /*
  * ------------------------------------------------------------
- * 2. FORM & INPUT CONTROLS
+ * 2. FORM CONTROLS & INPUT DEFAULTS
  *
- * Input field alignments and micro-adjustments.
+ * Standard borders and sizing for text entry inputs.
  * ------------------------------------------------------------
  */
 
-/* Shift text inside text-entry boxes down by exactly 1px without moving the boxes. */
-input[type="text"],
 input:not([type]) {
-    padding-top: calc(0.375rem + 0.05952381rem);
-    padding-bottom: calc(0.375rem - 0.05952381rem);
+    height: 1.54761905rem;
+    border: 0.05952381rem solid black;
+    border-radius: 0.23809524rem;
 }
 
 
@@ -95,12 +94,14 @@ input:not([type]) {
  * 3. NAVIGATION BAR
  *
  * Spaced navigation buttons, 2-row link stacking,
- * and unbroken vertical dividers.
+ * balanced padding, and unbroken vertical dividers.
  * ------------------------------------------------------------
  */
 
+header.navbar,
 .navbar {
     flex-direction: row;
+    padding-top: 0 !important;
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
 }
@@ -109,7 +110,6 @@ input:not([type]) {
     height: 5rem;
 }
 
-/* Each navigation button receives balanced spacing based on text width */
 .navbar-nav {
     display: flex;
     align-items: stretch;
@@ -167,11 +167,26 @@ input:not([type]) {
     background-size: cover;
 }
 
+/* The calculator's content height changes whenever cards/results change.
+   Anchor its background to the viewport using a fixed viewport layer so
+   those changes do not rescale or reposition the artwork across browsers. */
 .fusion-calculator-page.polymerization {
-    background-repeat: no-repeat;
-    background-position: center top;
+    background: transparent !important;
+}
+
+.fusion-calculator-page::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url("../images/fusion_background.jpg") no-repeat center top;
     background-size: cover;
-    background-attachment: fixed;
+    pointer-events: none;
+    transform: translateZ(0);
 }
 
 .background-vrains {
@@ -290,8 +305,9 @@ input:not([type]) {
     background-color: rgb(243, 178, 166);
 }
 
-.btn-about:hover {
-    color: rgb(12, 14, 22);
+.btn-about:hover,
+.btn-about:focus {
+    color: rgb(30, 35, 55);
     background-color: rgb(237, 139, 121);
 }
 
@@ -366,7 +382,6 @@ footer {
 
     .hero-title {
         text-align: center;
-        white-space: nowrap;
         margin-left: -0.89285714rem;
         margin-right: -0.89285714rem;
     }
