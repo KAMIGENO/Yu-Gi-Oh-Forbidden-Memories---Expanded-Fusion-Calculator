@@ -1,3 +1,4 @@
+/* --- FILE: public/javascripts/fusionCalc.js --- */
 /*
  * ------------------------------------------------------------
  * FILE: public/javascripts/fusionCalc.js
@@ -26,26 +27,21 @@ var handCards = new Array(HAND_SIZE).fill(null);
 var currentPage = 1;
 var totalPages = Math.ceil(HAND_SIZE / PAGE_SIZE);
 
-var allCards = card_db().get();
-var cardNames = allCards.map(function (card) {
-    return card.Name;
-});
-
 
 /*
  * ------------------------------------------------------------
- * 2. CARD LOOKUPS
- *
- * Pre-build index-based and name-based lookups to avoid O(N)
- * searches over 722 cards in tight calculation loops.
+ * 2. CARD DATABASE LOOKUPS
  * ------------------------------------------------------------
  */
 
+var allCards = card_db().get();
+var cardNames = [];
 var cardById = {};
 var cardByName = {};
 
 allCards.forEach(function (card) {
 
+    cardNames.push(card.Name);
     cardById[card.Id] = card;
     cardByName[card.Name.toLowerCase()] = card;
 
@@ -73,9 +69,6 @@ function getCardById(id) {
 /*
  * ------------------------------------------------------------
  * 3. FUSION AND EQUIP LOOKUPS
- *
- * Build O(1) pair lookups for the 79,800 possible pairs in a
- * completely filled 800-card hand.
  * ------------------------------------------------------------
  */
 
@@ -122,7 +115,6 @@ glitchFusions.forEach(function (fusion) {
         return;
     }
 
-
     if (!glitchFusionLookup[c1.Id]) {
         glitchFusionLookup[c1.Id] = {};
     }
@@ -131,23 +123,31 @@ glitchFusions.forEach(function (fusion) {
         glitchFusionLookup[c2.Id] = {};
     }
 
-
     glitchFusionLookup[c1.Id][c2.Id] = res.Id;
     glitchFusionLookup[c2.Id][c1.Id] = res.Id;
 
 });
 
 
-equipsList.forEach(function (equipList, cardId) {
+equipsList.forEach(function (equips, monsterId) {
 
-    if (!equipList) {
+    if (!equips) {
         return;
     }
 
-    equipLookup[cardId] = {};
 
-    equipList.forEach(function (equipId) {
-        equipLookup[cardId][equipId] = true;
+    equips.forEach(function (equipId) {
+
+        if (equipId == null) {
+            return;
+        }
+
+        if (!equipLookup[equipId]) {
+            equipLookup[equipId] = {};
+        }
+
+        equipLookup[equipId][monsterId] = true;
+
     });
 
 });
@@ -172,33 +172,34 @@ ritualsList.forEach(function (ritualList) {
 });
 
 
-function getFusion(card1, card2) {
+var fieldDefinitions = fieldList || [];
 
-    if (!card1 || !card2) {
+
+function getFusionResult(cardA, cardB) {
+
+    if (!cardA || !cardB) {
         return null;
     }
 
+    var normal =
+        (fusionLookup[cardA.Id] || {})[cardB.Id] ||
+        (fusionLookup[cardB.Id] || {})[cardA.Id];
 
-    var standardResultId =
-        (fusionLookup[card1.Id] && fusionLookup[card1.Id][card2.Id]) ||
-        (fusionLookup[card2.Id] && fusionLookup[card2.Id][card1.Id]);
-
-    if (standardResultId) {
+    if (normal) {
         return {
-            result: getCardById(standardResultId),
-            glitch: false
+            result: getCardById(normal),
+            isGlitch: false
         };
     }
 
+    var glitch =
+        (glitchFusionLookup[cardA.Id] || {})[cardB.Id] ||
+        (glitchFusionLookup[cardB.Id] || {})[cardA.Id];
 
-    var glitchResultId =
-        (glitchFusionLookup[card1.Id] && glitchFusionLookup[card1.Id][card2.Id]) ||
-        (glitchFusionLookup[card2.Id] && glitchFusionLookup[card2.Id][card1.Id]);
-
-    if (glitchResultId) {
+    if (glitch) {
         return {
-            result: getCardById(glitchResultId),
-            glitch: true
+            result: getCardById(glitch),
+            isGlitch: true
         };
     }
 
@@ -219,6 +220,10 @@ function getCardTypeName(card) {
 
     if (!card) {
         return "Unknown";
+    }
+
+    if (card.Type === 20) {
+        return fieldCardIds[card.Id] ? "Magic (Field)" : "Magic (Effect)";
     }
 
     return cardTypes[card.Type] || "Unknown";
@@ -305,17 +310,24 @@ var guardianStarSymbols = {
 
 function formatCardDetails(card) {
 
-    return (
-        "Type: " +
-        getCardTypeName(card) +
-        " — Guardian Stars: " +
-        formatGuardianStars(card) +
-        " — " +
-        card.Attack +
-        "A / " +
-        card.Defense +
-        "D"
-    );
+    if (!card) {
+        return "";
+    }
+
+    var details = "Type: " + getCardTypeName(card);
+
+    if (isMonster(card)) {
+        details +=
+            " — Stars: " +
+            formatGuardianStars(card) +
+            " — " +
+            card.Attack +
+            "A / " +
+            card.Defense +
+            "D";
+    }
+
+    return details;
 
 }
 
@@ -334,151 +346,178 @@ var MAX_CHAIN_DEPTH = 5;
 
 function buildFusionChains(cards) {
 
-    var chains = [];
-    var seenPairs = {};
+    if (!cards || cards.length < 2) {
+        return [];
+    }
 
+    var available = {};
 
-    for (var i = 0; i < cards.length; i++) {
+    cards.forEach(function (card) {
+        available[card.Id] = (available[card.Id] || 0) + 1;
+    });
 
-        for (var j = i + 1; j < cards.length; j++) {
+    var uniqueCards = Object.keys(available)
+        .map(function (cardId) {
+            return getCardById(Number(cardId));
+        })
+        .filter(Boolean)
+        .sort(function (a, b) {
+            return a.Id - b.Id;
+        });
 
-            var first = cards[i];
-            var second = cards[j];
+    var allChains = [];
 
-            var pairKey =
-                Math.min(first.Id, second.Id) +
-                ":" +
-                Math.max(first.Id, second.Id);
+    function searchChains(currentResult, currentChain, currentAvailable) {
 
+        if (currentChain.length >= MAX_CHAIN_DEPTH - 1) {
+            return;
+        }
 
-            if (seenPairs[pairKey]) {
-                continue;
+        uniqueCards.forEach(function (nextCard) {
+
+            if ((currentAvailable[nextCard.Id] || 0) <= 0) {
+                return;
             }
 
-            seenPairs[pairKey] = true;
+            var nextFusion = getFusionResult(currentResult, nextCard);
 
-            var fusion = getFusion(first, second);
-
-            if (!fusion) {
-                continue;
+            if (!nextFusion) {
+                return;
             }
 
-            var usedIndexes = {};
-            usedIndexes[i] = true;
-            usedIndexes[j] = true;
+            var nextAvailable = {};
+            Object.keys(currentAvailable).forEach(function (key) {
+                nextAvailable[key] = currentAvailable[key];
+            });
+            nextAvailable[nextCard.Id] -= 1;
 
-            var step = {
-                card1: first,
-                card2: second,
-                result: fusion.result,
-                glitch: fusion.glitch,
-                parentResult: null
+            var nextStep = {
+                card1: currentResult,
+                card2: nextCard,
+                result: nextFusion.result,
+                isGlitch: nextFusion.isGlitch
             };
 
-            chains.push([step]);
+            var nextChain = currentChain.concat([nextStep]);
 
-            extendFusionChain([step], usedIndexes, cards, chains);
+            allChains.push(nextChain);
+            searchChains(nextFusion.result, nextChain, nextAvailable);
+
+        });
+
+    }
+
+    for (var i = 0; i < uniqueCards.length; i++) {
+
+        var firstCard = uniqueCards[i];
+
+        for (var j = i; j < uniqueCards.length; j++) {
+
+            var secondCard = uniqueCards[j];
+
+            if (firstCard.Id === secondCard.Id && available[firstCard.Id] < 2) {
+                continue;
+            }
+
+            var baseFusion = getFusionResult(firstCard, secondCard);
+
+            if (!baseFusion) {
+                continue;
+            }
+
+            var baseAvailable = {};
+            Object.keys(available).forEach(function (key) {
+                baseAvailable[key] = available[key];
+            });
+            baseAvailable[firstCard.Id] -= 1;
+            baseAvailable[secondCard.Id] -= 1;
+
+            var baseStep = {
+                card1: firstCard,
+                card2: secondCard,
+                result: baseFusion.result,
+                isGlitch: baseFusion.isGlitch
+            };
+
+            var baseChain = [baseStep];
+
+            allChains.push(baseChain);
+            searchChains(baseFusion.result, baseChain, baseAvailable);
 
         }
 
     }
 
-    return chains;
+    return deduplicateChains(allChains);
 
 }
 
 
-function extendFusionChain(currentChain, usedIndexes, cards, chains) {
+function deduplicateChains(chains) {
 
-    if (currentChain.length >= (MAX_CHAIN_DEPTH - 1)) {
-        return;
-    }
+    var seen = {};
 
+    return chains.filter(function (chain) {
 
-    var currentResult = currentChain[currentChain.length - 1].result;
-    var seenNextCardIds = {};
+        var ids = [];
 
+        chain.forEach(function (step, index) {
 
-    for (var i = 0; i < cards.length; i++) {
+            if (index === 0) {
+                ids.push(step.card1.Id);
+                ids.push(step.card2.Id);
+                return;
+            }
 
-        if (usedIndexes[i]) {
-            continue;
+            ids.push(step.card2.Id);
+
+        });
+
+        ids.sort(function (a, b) {
+            return a - b;
+        });
+
+        var key = ids.join(",") + "=>" + chain[chain.length - 1].result.Id;
+
+        if (seen[key]) {
+            return false;
         }
 
-        var nextCard = cards[i];
+        seen[key] = true;
+        return true;
 
-        if (seenNextCardIds[nextCard.Id]) {
-            continue;
-        }
-
-        seenNextCardIds[nextCard.Id] = true;
-
-        var fusion = getFusion(currentResult, nextCard);
-
-        if (!fusion) {
-            continue;
-        }
-
-        var nextStep = {
-            card1: nextCard,
-            card2: currentResult,
-            result: fusion.result,
-            glitch: fusion.glitch,
-            parentResult: currentResult
-        };
-
-        var nextUsedIndexes = Object.assign({}, usedIndexes);
-        nextUsedIndexes[i] = true;
-
-        var nextChain = currentChain.concat([nextStep]);
-
-        chains.push(nextChain);
-
-        extendFusionChain(nextChain, nextUsedIndexes, cards, chains);
-
-    }
+    });
 
 }
 
 
 function canEquip(equipCard, targetCard) {
 
-    if (!equipCard || !targetCard || !isMonster(targetCard)) {
+    if (!equipCard || !targetCard) {
         return false;
     }
 
-    return (
-        Array.isArray(equipCard.Equip) &&
-        equipCard.Equip.indexOf(targetCard.Id) !== -1
-    );
+    return (equipLookup[equipCard.Id] || {})[targetCard.Id] === true;
 
 }
 
 
 function buildEquipTargets(cards, rituals, chains) {
 
-    /*
-     * Use the same fusion-chain generation as the Fusion Calculator
-     * Fusions section.
-     *
-     * Depth represents the minimum number of original hand cards needed:
-     *   1 = card already in hand
-     *   2 = two-card fusion or ritual
-     *   3 = three-card fusion, etc.
-     */
     var reachable = {};
-
 
     cards.forEach(function (card) {
 
+        if (!card) {
+            return;
+        }
+
         reachable[card.Id] = {
             card: card,
-            depth: 1,
-            steps: []
+            depth: 1
         };
 
     });
-
 
     var fusionChains = chains || buildFusionChains(cards);
 
@@ -486,21 +525,20 @@ function buildEquipTargets(cards, rituals, chains) {
 
         chain.forEach(function (step, index) {
 
-            if (!step.result) {
+            var resultCard = step.result;
+
+            if (!resultCard) {
                 return;
             }
 
-
             var depth = index + 2;
-            var current = reachable[step.result.Id];
-
+            var current = reachable[resultCard.Id];
 
             if (!current || depth < current.depth) {
 
-                reachable[step.result.Id] = {
-                    card: step.result,
-                    depth: depth,
-                    steps: chain.slice(0, index + 1)
+                reachable[resultCard.Id] = {
+                    card: resultCard,
+                    depth: depth
                 };
 
             }
@@ -509,12 +547,11 @@ function buildEquipTargets(cards, rituals, chains) {
 
     });
 
-
-    if (Array.isArray(rituals)) {
+    if (rituals && rituals.length > 0) {
 
         rituals.forEach(function (ritual) {
 
-            if (!ritual || !ritual.result || !isMonster(ritual.result)) {
+            if (!ritual || !ritual.result) {
                 return;
             }
 
@@ -525,8 +562,7 @@ function buildEquipTargets(cards, rituals, chains) {
 
                 reachable[ritual.result.Id] = {
                     card: ritual.result,
-                    depth: depth,
-                    steps: []
+                    depth: depth
                 };
 
             }
@@ -535,50 +571,42 @@ function buildEquipTargets(cards, rituals, chains) {
 
     }
 
-
-    /*
-     * The card database identifies Equip cards directly through their
-     * Equip property. Equip cards can come directly from the hand or from
-     * reachable fusions (e.g. Dian Keto + Dian Keto -> Megamorph).
-     */
     var equipCardMap = {};
 
     cards.forEach(function (card) {
-        if (Array.isArray(card.Equip) && card.Equip.length > 0) {
+
+        if (equipLookup[card.Id]) {
             equipCardMap[card.Id] = card;
         }
+
     });
 
     Object.keys(reachable).forEach(function (id) {
+
         var card = reachable[id].card;
-        if (Array.isArray(card.Equip) && card.Equip.length > 0) {
+
+        if (equipLookup[card.Id]) {
             equipCardMap[card.Id] = card;
         }
+
     });
 
     var equipCards = Object.keys(equipCardMap).map(function (id) {
         return equipCardMap[id];
     });
 
-
     if (equipCards.length === 0) {
         return [];
     }
 
-
     return equipCards.map(function (equipCard) {
 
         var targets = Object.keys(reachable)
-            .map(function (id) {
-                return reachable[id];
+            .map(function (cardId) {
+                return reachable[cardId];
             })
             .filter(function (entry) {
-
-                return (
-                    entry.card.Id !== equipCard.Id &&
-                    canEquip(equipCard, entry.card)
-                );
-
+                return canEquip(equipCard, entry.card);
             })
             .sort(function (a, b) {
 
@@ -586,20 +614,80 @@ function buildEquipTargets(cards, rituals, chains) {
                     return a.depth - b.depth;
                 }
 
+                var atkDiff = (b.card.Attack || 0) - (a.card.Attack || 0);
+
+                if (atkDiff !== 0) {
+                    return atkDiff;
+                }
+
+                var defDiff = (b.card.Defense || 0) - (a.card.Defense || 0);
+
+                if (defDiff !== 0) {
+                    return defDiff;
+                }
+
                 return a.card.Id - b.card.Id;
 
             });
 
-
         return {
-            equip: equipCard,
-            depth: 0,
+            equipCard: equipCard,
             targets: targets
         };
 
-    }).filter(function (entry) {
-        return entry.targets.length > 0;
+    }).sort(function (a, b) {
+        return a.equipCard.Id - b.equipCard.Id;
     });
+
+}
+
+
+function formatEquipTargetLine(card, depth) {
+
+    var indentRem = depth * 2;
+
+    return (
+        "<div class='fusion-chain-step" +
+        (depth === 0 ? "" : " fusion-chain-followup") +
+        "' style='margin-left: " + indentRem + "rem;'>" +
+        formatBoldInputCard(card) +
+        "</div>"
+    );
+
+}
+
+
+function equipsToHTML(equipEntries) {
+
+    if (!equipEntries || equipEntries.length === 0) {
+        return "";
+    }
+
+    return equipEntries
+        .map(function (entry) {
+
+            var equipHeader =
+                "<div class='fusion-chain-step' style='margin-left: 0rem;'>" +
+                "<strong style='color: #198754;'>" +
+                escapeHTML(formatCardId(entry.equipCard.Id) + " " + entry.equipCard.Name) +
+                "</strong>" +
+                "</div>";
+
+            var targetsHTML = entry.targets
+                .map(function (target) {
+                    return formatEquipTargetLine(target.card, target.depth);
+                })
+                .join("");
+
+            return (
+                "<div class='result-div fusion-chain-result'>" +
+                equipHeader +
+                targetsHTML +
+                "</div>"
+            );
+
+        })
+        .join("\n");
 
 }
 
@@ -693,9 +781,11 @@ function fusionChainsToHTML(chains) {
 
             return (
                 "<div class='result-div fusion-chain-result'>" +
-                chain.map(function (step, index) {
-                    return formatFusionStep(step, index);
-                }).join("") +
+                chain
+                    .map(function (step, index) {
+                        return formatFusionStep(step, index);
+                    })
+                    .join("") +
                 "</div>"
             );
 
@@ -705,174 +795,57 @@ function fusionChainsToHTML(chains) {
 }
 
 
-function formatEquipStep(depth, cardHTML) {
-
-    return (
-        "<div class='fusion-chain-step" +
-        (depth === 0 ? "" : " fusion-chain-followup") +
-        "' style='margin-left: " + (depth * 2) + "rem;'>" +
-        cardHTML +
-        "</div>"
-    );
-
-}
-
-
-function formatEquipCard(card) {
-
-    if (!card) {
-        return "";
-    }
-
-    return "<strong style='color: #198754;'>" +
-        escapeHTML(formatInputCard(card)) +
-        "</strong>";
-
-}
-
-
-function equipsToHTML(equipEntries) {
-
-    return equipEntries
-        .slice()
-        .sort(function (a, b) {
-            return a.equip.Id - b.equip.Id;
-        })
-        .map(function (entry) {
-
-            var html =
-                "<div class='result-div fusion-chain-result'>" +
-                formatEquipStep(0, formatEquipCard(entry.equip));
-
-
-            entry.targets.forEach(function (target) {
-
-                html += formatEquipStep(
-                    target.depth,
-                    formatBoldInputCard(target.card)
-                );
-
-            });
-
-
-            return html + "</div>";
-
-        })
-        .join("\n");
-
-}
-
-
-function getFieldsForCard(card) {
-
-    if (!card || !isMonster(card)) {
-        return [];
-    }
-
-
-    return fieldList
-        .map(function (definition) {
-
-            var fieldCard = getCardById(definition.CardId);
-
-
-            if (!fieldCard) {
-                return null;
-            }
-
-
-            if (definition.PositiveTypes.indexOf(card.Type) !== -1) {
-                return {
-                    card: fieldCard,
-                    positive: true
-                };
-            }
-
-
-            if (definition.NegativeTypes.indexOf(card.Type) !== -1) {
-                return {
-                    card: fieldCard,
-                    positive: false
-                };
-            }
-
-
-            return null;
-
-        })
-        .filter(function (entry) {
-            return !!entry;
-        });
-
-}
-
-
 function fieldsToHTML(cards, chains, rituals) {
 
-    var fields = {};
-    var handCardIds = {};
-    var fusionDepths = {};
-
+    var fieldMap = {};
 
     cards.forEach(function (card) {
 
-        handCardIds[card.Id] = true;
+        if (card && fieldCardIds[card.Id]) {
+            fieldMap[card.Id] = card;
+        }
 
-        if (fusionDepths[card.Id] == null) {
+    });
+
+    var fieldKeys = Object.keys(fieldMap);
+
+    if (fieldKeys.length === 0) {
+        return "";
+    }
+
+    var reachableCards = {};
+    var fusionDepths = {};
+
+    cards.forEach(function (card) {
+
+        if (isMonster(card)) {
+            reachableCards[card.Id] = card;
             fusionDepths[card.Id] = 1;
         }
 
     });
 
-
     chains.forEach(function (chain) {
 
-        var finalResult = chain[chain.length - 1].result;
+        chain.forEach(function (step, stepIndex) {
 
-        if (!isMonster(finalResult)) {
-            return;
-        }
+            if (isMonster(step.result)) {
 
-        var depth = chain.length + 1;
+                var depth = stepIndex + 2;
 
-        if (fusionDepths[finalResult.Id] == null || depth < fusionDepths[finalResult.Id]) {
-            fusionDepths[finalResult.Id] = depth;
-        }
+                reachableCards[step.result.Id] = step.result;
 
-    });
+                if (fusionDepths[step.result.Id] == null || depth < fusionDepths[step.result.Id]) {
+                    fusionDepths[step.result.Id] = depth;
+                }
 
+            }
 
-    var candidateMonsters = [];
-    var seenCandidates = {};
-
-
-    cards.forEach(function (card) {
-
-        if (seenCandidates[card.Id]) {
-            return;
-        }
-
-        seenCandidates[card.Id] = true;
-        candidateMonsters.push(card);
+        });
 
     });
 
-
-    chains.forEach(function (chain) {
-
-        var finalResult = chain[chain.length - 1].result;
-
-        if (!isMonster(finalResult) || seenCandidates[finalResult.Id]) {
-            return;
-        }
-
-        seenCandidates[finalResult.Id] = true;
-        candidateMonsters.push(finalResult);
-
-    });
-
-
-    if (Array.isArray(rituals)) {
+    if (rituals && rituals.length > 0) {
 
         rituals.forEach(function (ritual) {
 
@@ -887,19 +860,21 @@ function fieldsToHTML(cards, chains, rituals) {
                 fusionDepths[finalResult.Id] = depth;
             }
 
-            if (!seenCandidates[finalResult.Id]) {
-                seenCandidates[finalResult.Id] = true;
-                candidateMonsters.push(finalResult);
-            }
+            reachableCards[finalResult.Id] = finalResult;
 
         });
 
     }
 
+    var monsterCards = Object.keys(reachableCards).map(function (id) {
+        return reachableCards[id];
+    });
 
-    fieldList.forEach(function (definition) {
+    var html = "";
 
-        var fieldCard = getCardById(definition.CardId);
+    fieldDefinitions.forEach(function (definition) {
+
+        var fieldCard = fieldMap[definition.CardId];
 
         if (!fieldCard) {
             return;
@@ -907,12 +882,11 @@ function fieldsToHTML(cards, chains, rituals) {
 
         [true, false].forEach(function (positive) {
 
-            var affected = [];
-            var seen = {};
+            var matchingMonsters = [];
 
-            candidateMonsters.forEach(function (card) {
+            monsterCards.forEach(function (card) {
 
-                if (seen[card.Id]) {
+                if (!card) {
                     return;
                 }
 
@@ -925,95 +899,88 @@ function fieldsToHTML(cards, chains, rituals) {
                     return;
                 }
 
+                var depth = fusionDepths[card.Id] != null
+                    ? fusionDepths[card.Id]
+                    : 1;
 
-                seen[card.Id] = true;
-                affected.push({
+                matchingMonsters.push({
                     card: card,
-                    depth: fusionDepths[card.Id]
+                    depth: depth
                 });
 
             });
 
-
-            if (affected.length === 0) {
+            if (matchingMonsters.length === 0) {
                 return;
             }
 
-
-            affected.sort(function (a, b) {
+            matchingMonsters.sort(function (a, b) {
 
                 if (a.depth !== b.depth) {
                     return a.depth - b.depth;
+                }
+
+                var atkDiff = (b.card.Attack || 0) - (a.card.Attack || 0);
+
+                if (atkDiff !== 0) {
+                    return atkDiff;
+                }
+
+                var defDiff = (b.card.Defense || 0) - (a.card.Defense || 0);
+
+                if (defDiff !== 0) {
+                    return defDiff;
                 }
 
                 return a.card.Id - b.card.Id;
 
             });
 
+            var sign = positive ? "+" : "−";
+            var signClass = positive ? "field-positive" : "field-negative";
 
-            fields[fieldCard.Id + ":" + (positive ? "positive" : "negative")] = {
-                card: fieldCard,
-                affected: affected,
-                positive: positive
-            };
+            var fieldHeader =
+                "<div class='fusion-chain-step field-header " + signClass + "'>" +
+                "<strong>" + sign + "</strong> " +
+                formatBoldInputCard(fieldCard) +
+                "</div>";
+
+            var monstersHTML = matchingMonsters
+                .map(function (entry) {
+
+                    var indentRem = entry.depth * 2;
+
+                    return (
+                        "<div class='fusion-chain-step" +
+                        (entry.depth === 0 ? "" : " fusion-chain-followup") +
+                        "' style='margin-left: " + indentRem + "rem;'>" +
+                        formatBoldInputCard(entry.card) +
+                        "</div>"
+                    );
+
+                })
+                .join("");
+
+            html +=
+                "<div class='result-div fusion-chain-result field-result'>" +
+                fieldHeader +
+                monstersHTML +
+                "</div>";
 
         });
 
     });
 
-
-    return Object.keys(fields)
-        .map(function (fieldKey) {
-
-            return fields[fieldKey];
-
-        })
-        .sort(function (a, b) {
-
-            if (a.card.Id !== b.card.Id) {
-                return a.card.Id - b.card.Id;
-            }
-
-            return a.positive === b.positive
-                ? 0
-                : a.positive ? -1 : 1;
-
-        })
-        .map(function (field) {
-
-            var html =
-                "<div class='result-div fusion-chain-result field-result'>" +
-                "<div class='fusion-chain-step field-header " +
-                (field.positive ? "field-positive" : "field-negative") +
-                "'>" +
-                "<strong>" +
-                (field.positive ? "+" : "-") +
-                "</strong> " +
-                formatBoldInputCard(field.card) +
-                "</div>";
-
-
-            field.affected.forEach(function (entry) {
-
-                html +=
-                    "<div class='fusion-chain-step" +
-                    (entry.depth === 0 ? "" : " fusion-chain-followup") +
-                    "' style='margin-left: " +
-                    (entry.depth * 2) +
-                    "rem;'>" +
-                    formatBoldInputCard(entry.card) +
-                    "</div>";
-
-            });
-
-
-            return html + "</div>";
-
-        })
-        .join("\n");
+    return html;
 
 }
 
+
+/*
+ * ------------------------------------------------------------
+ * 6. FUSION & RITUAL CALCULATION
+ * ------------------------------------------------------------
+ */
 
 function findFusions() {
 
@@ -1021,36 +988,34 @@ function findFusions() {
         return card !== null;
     });
 
-
     var chains = buildFusionChains(cards);
     var rituals = findRituals(cards);
     var equipEntries = buildEquipTargets(cards, rituals, chains);
 
-
     var fields = fieldsToHTML(
-        cards.filter(function (card) {
-            return isMonster(card);
-        }),
+        cards,
         chains,
         rituals
     );
 
+    var fusionsHTML = fusionChainsToHTML(chains);
+    var ritualsHTML = ritualsToHTML(rituals);
+    var equipsHTML = equipsToHTML(equipEntries);
 
     outputLeft.innerHTML =
         "<section class='fusion-calculator-output-section output-left-section'>" +
         "<h2 class='text-left'>Fusions:</h2>" +
-        fusionChainsToHTML(chains) +
+        fusionsHTML +
         "</section>" +
         "<section class='fusion-calculator-output-section output-left-section'>" +
         "<h2 class='text-left'>Rituals:</h2>" +
-        ritualsToHTML(rituals) +
+        ritualsHTML +
         "</section>";
-
 
     outputRight.innerHTML =
         "<section class='fusion-calculator-output-section output-right-section'>" +
         "<h2 class='text-left'>Equips:</h2>" +
-        equipsToHTML(equipEntries) +
+        equipsHTML +
         "</section>" +
         "<section class='fusion-calculator-output-section output-right-section'>" +
         "<h2 class='text-left'>Fields:</h2>" +
@@ -1059,12 +1024,6 @@ function findFusions() {
 
 }
 
-
-/*
- * ------------------------------------------------------------
- * 6. RITUAL CALCULATION
- * ------------------------------------------------------------
- */
 
 function findRituals(cards) {
 
@@ -1189,27 +1148,7 @@ function updateCardInfo(input, info) {
     }
 
 
-    if (isMonster(card)) {
-
-        info.textContent =
-            formatCardDetails(card);
-
-        return;
-
-    }
-
-
-    var typeLabel = cardTypes[card.Type];
-
-
-    if (card.Type === 20) {
-        typeLabel = fieldCardIds[card.Id]
-            ? "Magic (Field)"
-            : "Magic (Effect)";
-    }
-
-
-    info.textContent = "Type: " + typeLabel;
+    info.textContent = formatCardDetails(card);
 
 }
 
