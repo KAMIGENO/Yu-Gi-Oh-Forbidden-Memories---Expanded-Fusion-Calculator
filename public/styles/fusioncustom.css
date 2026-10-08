@@ -3,8 +3,7 @@
  * FILE: public/styles/fusioncustom.css
  * ------------------------------------------------------------
  *
- * Custom page layouts, table responsiveness, calculator controls,
- * card detail presentation, and search result formatting.
+ * Custom page layouts, table responsiveness, calculator controls, card detail presentation, and search result formatting.
  */
 
 
@@ -106,6 +105,7 @@ main.container {
     }
 }
 
+
 /* ------------------------------------------------------------
    FUSION STATISTICS
    ------------------------------------------------------------ */
@@ -153,6 +153,7 @@ main.container {
     }
 
 }
+
 
 /* ------------------------------------------------------------
    EQUIP STATISTICS
@@ -209,9 +210,6 @@ main.container {
 
 }
 
-
-
-
 .fusion-card-summary-secondary {
     padding-top: 0.35rem;
     color: #4E4E4E;
@@ -245,8 +243,6 @@ main.container {
         grid-template-rows: auto;
     }
 }
-
-
 
 
 /* ------------------------------------------------------------
@@ -337,8 +333,6 @@ main.container {
 }
 
 
-
-
 /* ------------------------------------------------------------
    TABLE LAYOUT UNIFORMITY
    ------------------------------------------------------------ */
@@ -368,7 +362,7 @@ main.container {
     white-space: nowrap;
 }
 
-/* Fusion Statistics: Rank = Fusion Partners; Card takes the remaining width. */
+/* Fusion Statistics top table: witdth ratio = Rank-25 Card-50 Partners-25 */
 .fusion-stats-table th:nth-child(1),
 .fusion-stats-table td:nth-child(1),
 .fusion-stats-table th:nth-child(3),
@@ -381,7 +375,7 @@ main.container {
     width: 50%;
 }
 
-/* Fusion Statistics details: Fusion Partner = Result. */
+/* Fusion Statistics bottom table: witdth ratio = Partner-50 Result-50 */
 #fusion-details table th:nth-child(1),
 #fusion-details table td:nth-child(1),
 #fusion-details table th:nth-child(2),
@@ -389,7 +383,7 @@ main.container {
     width: 50%;
 }
 
-/* Equip Statistics: Rank = Compatible Monsters; Equip Card takes the remaining width. */
+/* Equip Statistics top table: witdth ratio = Rank-25 Equip-50 Monster-25 */
 .equip-stats-table th:nth-child(1),
 .equip-stats-table td:nth-child(1),
 .equip-stats-table th:nth-child(3),
@@ -402,7 +396,7 @@ main.container {
     width: 50%;
 }
 
-/* Field Statistics main table: the three descriptive columns share a width; Monster takes the rest. */
+/* Field Statistics bottom table: witdth ratio = Monster-40 Type-20 +Field-20 -Field-20 */
 .field-stats-table th:nth-child(2),
 .field-stats-table td:nth-child(2),
 .field-stats-table th:nth-child(3),
@@ -417,7 +411,7 @@ main.container {
     width: 40%;
 }
 
-/* Field Statistics card-effect tables: Monster Type = Effect; Monster Card takes the rest. */
+/* Field Statistics card effects tables: witdth ratio = Monster-50 Type-25 Effect-25 */
 .field-effect-table th:nth-child(2),
 .field-effect-table td:nth-child(2),
 .field-effect-table th:nth-child(3),
@@ -430,7 +424,7 @@ main.container {
     width: 50%;
 }
 
-/* Field Statistics type-group tables: Monster Type = # of Cards Affected = Effect; Affected Cards takes the rest. */
+/* Field Statistics type-group tables: width ratio = Type-20 #-20 Effect-20 Monster-40 */
 .field-type-group-table th:nth-child(1),
 .field-type-group-table td:nth-child(1),
 .field-type-group-table th:nth-child(2),
@@ -450,6 +444,7 @@ main.container {
 .field-type-group-table td:nth-child(3) {
     text-align: center;
 }
+
 
 /* ------------------------------------------------------------
    SEARCH / SOURCE CREDIT / CARD DETAIL LAYOUT
@@ -482,6 +477,7 @@ main.container {
 .fusion-source-credit {
     margin-top: 2rem !important;
 }
+
 
 /* ------------------------------------------------------------
    FUSION CALCULATOR CHAINS
@@ -516,21 +512,8 @@ main.container {
    FUSION CALCULATOR SHARED SPACING
    ------------------------------------------------------------ */
 
-/* 18px is the shared spacing reference for this page, inheriting
-   from --shared-spacing in public/styles/home.css (1.07142857rem).
-   --card-input-spacing is retained as an alias for compatibility. */
-.fusion-calculator-page {
-    --card-input-spacing: var(--shared-spacing);
-}
 
-/* Utility class for button-to-input spacing */
-.button-to-input-spacing {
-    margin-top: var(--shared-spacing) !important;
-    margin-bottom: var(--shared-spacing) !important;
-}
-
-/* Keep the calculator panels slightly inside the available page width by
-   one shared spacing unit on each side. */
+/* Keep the calculator panels slightly inside the available page width by one shared spacing unit ("18 px") on each side. */
 .fusion-calculator-page main.container > .fusion-calculator-panel,
 .fusion-calculator-page main.container > .fusion-calculator-results {
     width: calc(100% - (2 * var(--shared-spacing)));
@@ -538,13 +521,12 @@ main.container {
     margin-right: auto;
 }
 
-/* The top panel sits two rem below the navigation bar. */
+/* The top panel sits two rem ("36 px") below the navigation bar. */
 .fusion-calculator-page main.container > .fusion-calculator-panel {
     margin-top: 2rem !important;
 }
 
-/* The results panel remains separated from the hand panel by the shared
-   spacing. */
+/* The results panel remains separated from the hand panel by the shared spacing. */
 .fusion-calculator-page main.container > .fusion-calculator-results {
     margin-top: var(--shared-spacing) !important;
 }
@@ -611,6 +593,7 @@ main.container {
     font-weight: 700;
 }
 
+
 /* ------------------------------------------------------------
    FUSION CALCULATOR RESULTS COLUMN BALANCE
    ------------------------------------------------------------ */
@@ -639,7 +622,7 @@ main.container {
     padding-right: 0;
 }
 
-/* Leave one shared spacing unit between the left and right result boxes. */
+/* Leave one shared spacing unit ("18 px") between the left and right result boxes. */
 .fusion-calculator-results #outputarealeft .fusion-calculator-output-section {
     width: calc(100% - var(--shared-spacing));
 }
@@ -653,7 +636,7 @@ main.container {
 }
 
 
-/* Fusion Calculator output alignment */
+/* Fusion Calculator output alignment. */
 .fusion-calculator-output-section.output-left-section {
     padding-left: var(--shared-spacing);
 }
