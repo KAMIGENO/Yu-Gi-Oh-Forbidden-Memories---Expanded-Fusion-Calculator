@@ -626,15 +626,15 @@ main.container {
 }
 
 .fusion-calculator-results .row > .col-sm:first-child {
-    flex: 0 0 69%;
-    max-width: 69%;
+    flex: 0 0 67.5%;
+    max-width: 67.5%;
     padding-left: 0;
     padding-right: 0;
 }
 
 .fusion-calculator-results .row > .col-sm:last-child {
-    flex: 0 0 31%;
-    max-width: 31%;
+    flex: 0 0 32.5%;
+    max-width: 32.5%;
     padding-left: 0;
     padding-right: 0;
 }
