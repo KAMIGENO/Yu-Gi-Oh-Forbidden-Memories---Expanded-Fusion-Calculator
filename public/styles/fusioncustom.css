@@ -565,11 +565,20 @@ main.container {
    ------------------------------------------------------------ */
 
 #hand-prev,
+#hand-next {
+    width: 7.73809524rem;
+}
+
+#resetBtn {
+    width: 10.71428571rem;
+    white-space: nowrap;
+}
+
+#hand-prev,
 #hand-next,
 #resetBtn {
     margin-top: var(--shared-spacing) !important;
     margin-bottom: var(--shared-spacing) !important;
-    width: 7.73809524rem;
     height: 2.85714286rem;
     display: inline-flex;
     align-items: center;
