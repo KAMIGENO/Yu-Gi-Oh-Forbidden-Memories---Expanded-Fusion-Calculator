@@ -61,33 +61,96 @@
 
     /*
      * ------------------------------------------------------------
-     * 1. CARD LOOKUP CACHE
+     * 1. CARD LOOKUP
      * ------------------------------------------------------------
      */
 
     var allCards = card_db().get();
 
+
     allCards.forEach(function (card) {
+
         cardById[card.Id] = card;
+
     });
 
-    var monsterCards = allCards
-        .filter(function (card) {
-            return card.Type < 20;
-        })
-        .sort(function (a, b) {
-            return a.Id - b.Id;
-        });
 
-    var monsterCardsByName = monsterCards.slice().sort(function (a, b) {
-        var comparison = a.Name.localeCompare(b.Name);
+    function isMonster(card) {
 
-        if (comparison !== 0) {
-            return comparison;
+        return !!card && card.Type < 20;
+
+    }
+
+
+    var monsterCards = allCards.filter(function (card) {
+
+        return isMonster(card);
+
+    });
+
+
+
+    function getCardsForTypes(typeIds) {
+
+        return monsterCards
+            .filter(function (card) {
+
+                return typeIds.indexOf(card.Type) !== -1;
+
+            })
+            .sort(function (a, b) {
+
+                return a.Id - b.Id;
+
+            });
+
+    }
+
+
+    function getTypeName(typeId) {
+
+        if (cardTypes[typeId] === "Spellcaster") {
+            return "Magic-User (Spellcaster)";
         }
 
-        return a.Id - b.Id;
-    });
+        return cardTypes[typeId] || "Unknown";
+
+    }
+
+
+    function buildTypeGroups(cards) {
+
+        var groups = {};
+
+
+        cards.forEach(function (card) {
+
+            if (!groups[card.Type]) {
+                groups[card.Type] = [];
+            }
+
+            groups[card.Type].push(card);
+
+        });
+
+
+        return Object.keys(groups)
+            .map(function (typeId) {
+
+                return {
+                    typeId: Number(typeId),
+                    typeName: getTypeName(Number(typeId)),
+                    cards: groups[typeId].sort(function (a, b) {
+                        return a.Id - b.Id;
+                    })
+                };
+
+            })
+            .sort(function (a, b) {
+                return a.typeName.localeCompare(b.typeName);
+            });
+
+    }
 
 
     /*
@@ -109,126 +172,68 @@
         /*
          * A Field card must remain a Magic card in the main card
          * database. fieldList is the additional designation that
-         * records its identity and its field effects.
+         * identifies it as a Field card.
          */
-        var attackBonus = definition.Bonus || 500;
-        var defenseBonus = definition.Bonus || 500;
-        var attackPenalty = definition.Penalty || 500;
-        var defensePenalty = definition.Penalty || 500;
 
-        var positiveTypes = definition.PositiveTypes || [];
-        var negativeTypes = definition.NegativeTypes || [];
-
-        var positiveCards = [];
-        var neutralCards = [];
-        var negativeCards = [];
-
-        var positiveIdSet = {};
-        var neutralIdSet = {};
-        var negativeIdSet = {};
-
-        var positiveGroupMap = {};
-        var neutralGroupMap = {};
-        var negativeGroupMap = {};
-
-
-        monsterCardsByName.forEach(function (card) {
-
-            var type = card.Type;
-
-
-            if (positiveTypes.indexOf(type) !== -1) {
-
-                positiveCards.push(card);
-                positiveIdSet[card.Id] = true;
-
-                if (!positiveGroupMap[type]) {
-                    positiveGroupMap[type] = [];
-                }
-
-                positiveGroupMap[type].push(card);
-
-            } else if (negativeTypes.indexOf(type) !== -1) {
-
-                negativeCards.push(card);
-                negativeIdSet[card.Id] = true;
-
-                if (!negativeGroupMap[type]) {
-                    negativeGroupMap[type] = [];
-                }
-
-                negativeGroupMap[type].push(card);
-
-            } else {
-
-                neutralCards.push(card);
-                neutralIdSet[card.Id] = true;
-
-                if (!neutralGroupMap[type]) {
-                    neutralGroupMap[type] = [];
-                }
-
-                neutralGroupMap[type].push(card);
-
-            }
-
-        });
-
-
-        function toGroupList(groupMap) {
-
-            return Object.keys(groupMap).map(function (typeIdString) {
-
-                var typeId = Number(typeIdString);
-
-                return {
-                    typeId: typeId,
-                    typeName: cardTypes[typeId] || "Unknown",
-                    cards: groupMap[typeId]
-                };
-
-            }).sort(function (a, b) {
-
-                return a.typeName.localeCompare(b.typeName);
-
-            });
-
+        if (fieldCard.Type !== 20) {
+            return;
         }
 
 
-        statistics.push({
+        var positiveCards = getCardsForTypes(definition.PositiveTypes);
+        var negativeCards = getCardsForTypes(definition.NegativeTypes);
+        var positiveIds = {};
+        var negativeIds = {};
+
+
+        positiveCards.forEach(function (card) {
+            positiveIds[card.Id] = true;
+        });
+
+
+        negativeCards.forEach(function (card) {
+            negativeIds[card.Id] = true;
+        });
+
+
+        var neutralCards = monsterCards
+            .filter(function (card) {
+
+                return !positiveIds[card.Id] && !negativeIds[card.Id];
+
+            })
+            .sort(function (a, b) {
+
+                return a.Id - b.Id;
+
+            });
+
+
+        var statistic = {
             card: fieldCard,
-            definition: definition,
-
-            attackBonus: attackBonus,
-            defenseBonus: defenseBonus,
-            attackPenalty: attackPenalty,
-            defensePenalty: defensePenalty,
-
             positiveCards: positiveCards,
             neutralCards: neutralCards,
             negativeCards: negativeCards,
-
-            positiveIdSet: positiveIdSet,
-            neutralIdSet: neutralIdSet,
-            negativeIdSet: negativeIdSet,
-
-            positiveGroups: toGroupList(positiveGroupMap),
-            neutralGroups: toGroupList(neutralGroupMap),
-            negativeGroups: toGroupList(negativeGroupMap),
-
             positiveCount: positiveCards.length,
             neutralCount: neutralCards.length,
             negativeCount: negativeCards.length,
+            nonNeutralCount: positiveCards.length + negativeCards.length,
+            positiveIdSet: positiveIds,
+            negativeIdSet: negativeIds,
+            positiveGroups: buildTypeGroups(positiveCards),
+            neutralGroups: buildTypeGroups(neutralCards),
+            negativeGroups: buildTypeGroups(negativeCards),
             bonus: definition.Bonus
-        });
+        };
+
+        statistics.push(statistic);
 
     });
 
 
     /*
      * ------------------------------------------------------------
-     * 3. RANK CALCULATIONS
+     * 3. RANK LABELS
      * ------------------------------------------------------------
      */
 
@@ -237,83 +242,73 @@
     var negativeRankLabels = {};
 
 
-    function calculateRankLabels(countProperty, rankLabelsMap, sortDescending) {
+    function calculateRankLabels(propertyName, destination) {
 
-        var sorted = statistics.slice().sort(function (a, b) {
+        var rankedResults = statistics.slice();
 
-            var diff = sortDescending
-                ? b[countProperty] - a[countProperty]
-                : a[countProperty] - b[countProperty];
 
-            if (diff !== 0) {
-                return diff;
+        rankedResults.sort(function (a, b) {
+
+            if (b[propertyName] !== a[propertyName]) {
+                return b[propertyName] - a[propertyName];
             }
 
             return a.card.Id - b.card.Id;
 
         });
 
-        var valueGroups = [];
-        var currentValue = null;
-        var currentGroup = null;
+
+        var i = 0;
 
 
-        sorted.forEach(function (entry) {
+        while (i < rankedResults.length) {
 
-            var value = entry[countProperty];
+            var count = rankedResults[i][propertyName];
+            var startRank = i + 1;
+            var j = i + 1;
 
-            if (value !== currentValue) {
 
-                currentGroup = {
-                    value: value,
-                    entries: []
-                };
+            while (
+                j < rankedResults.length &&
+                rankedResults[j][propertyName] === count
+            ) {
 
-                valueGroups.push(currentGroup);
-                currentValue = value;
+                j++;
 
             }
 
-            currentGroup.entries.push(entry);
 
-        });
-
-
-        var runningPosition = 1;
+            var endRank = j;
+            var label;
 
 
-        valueGroups.forEach(function (group) {
-
-            var groupSize = group.entries.length;
-            var rankText;
-
-
-            if (groupSize === 1) {
-                rankText = "Rank " + runningPosition;
+            if (startRank === endRank) {
+                label = "Rank " + startRank;
             } else {
-                rankText = "Rank " + runningPosition + "–" + (runningPosition + groupSize - 1);
+                label = "Rank " + startRank + "–" + endRank;
             }
 
 
-            group.entries.forEach(function (entry) {
-                rankLabelsMap[entry.card.Id] = rankText;
-            });
+            for (var k = i; k < j; k++) {
+                destination[rankedResults[k].card.Id] = label;
+            }
 
-            runningPosition += groupSize;
 
-        });
+            i = j;
+
+        }
 
     }
 
 
-    calculateRankLabels("positiveCount", positiveRankLabels, true);
-    calculateRankLabels("neutralCount", neutralRankLabels, true);
-    calculateRankLabels("negativeCount", negativeRankLabels, true);
+    calculateRankLabels("positiveCount", positiveRankLabels);
+    calculateRankLabels("neutralCount", neutralRankLabels);
+    calculateRankLabels("negativeCount", negativeRankLabels);
 
 
     /*
      * ------------------------------------------------------------
-     * 4. SORT FIELD STATISTICS
+     * 4. SORTING
      * ------------------------------------------------------------
      */
 
@@ -321,22 +316,10 @@
 
         results.sort(function (a, b) {
 
-            /* Primary sort: most positive cards first */
             if (b.positiveCount !== a.positiveCount) {
                 return b.positiveCount - a.positiveCount;
             }
 
-            /* Secondary sort: fewest negative cards first */
-            if (a.negativeCount !== b.negativeCount) {
-                return a.negativeCount - b.negativeCount;
-            }
-
-            /* Tertiary sort: most neutral cards first */
-            if (b.neutralCount !== a.neutralCount) {
-                return b.neutralCount - a.neutralCount;
-            }
-
-            /* Tie-breaker: lowest card ID first */
             return a.card.Id - b.card.Id;
 
         });
@@ -346,12 +329,35 @@
 
     /*
      * ------------------------------------------------------------
-     * 5. DISPLAY HELPERS
+     * 5. EFFECT HELPERS
      * ------------------------------------------------------------
      */
 
-    function getTypeName(typeId) {
-        return cardTypes[typeId] || "Unknown";
+    function getEffect(entry, monsterCard) {
+
+        var bonus = entry.bonus;
+
+        if (entry.positiveIdSet[monsterCard.Id]) {
+            return {
+                label: "Positive",
+                change: "+" + bonus + " ATK/DEF"
+            };
+        }
+
+
+        if (entry.negativeIdSet[monsterCard.Id]) {
+            return {
+                label: "Negative",
+                change: "-" + bonus + " ATK/DEF"
+            };
+        }
+
+
+        return {
+            label: "Neutral",
+            change: "No effect."
+        };
+
     }
 
 
@@ -414,7 +420,7 @@
     }
 
 
-    function createEffectTable(title, cardList, effectText) {
+    function createEffectTable(title, cards, effectText) {
 
         var wrapper = document.createElement("div");
         wrapper.className = "mb-5";
@@ -448,7 +454,8 @@
 
         var tbody = document.createElement("tbody");
 
-        cardList.forEach(function (card) {
+
+        cards.forEach(function (card) {
 
             var row = document.createElement("tr");
 
@@ -512,6 +519,7 @@
 
 
         var tbody = document.createElement("tbody");
+
 
         groups.forEach(function (group) {
 
@@ -652,7 +660,8 @@
         results.forEach(function (entry) {
 
             var details = document.createElement("details");
-            details.className = "mb-3 card p-3 shadow-sm";
+            details.className = "mb-3 border rounded bg-white p-2";
+
 
             var summary = document.createElement("summary");
             summary.className = "font-weight-bold p-2";
@@ -677,6 +686,9 @@
             fieldListContainer.appendChild(details);
 
         });
+
+
+
 
     }
 
@@ -849,7 +861,6 @@
 
     }
 
-
     function getFilteredMonsters() {
 
         var rawSearchText = monsterFilterInput.value.toLowerCase();
@@ -881,7 +892,7 @@
         var isStandaloneTerm = searchTerms.length === 1;
 
 
-        return monsterCardsByName
+        return monsterCards
             .filter(function (card) {
 
                 var cardName = card.Name.toLowerCase();
@@ -1021,6 +1032,7 @@
     renderMonsterSearch();
 
 })();
+
 
 /*
  * ------------------------------------------------------------
