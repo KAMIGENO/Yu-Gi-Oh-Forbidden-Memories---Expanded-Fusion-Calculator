@@ -3,8 +3,7 @@
  * FILE: public/styles/home.css
  * ------------------------------------------------------------
  *
- * Project-wide typography, color palette, navigation bar,
- * section layout, and footer styles for Forbidden Memories.
+ * Project-wide typography, color palette, navigation bar, section layout, and footer.
  */
 
 
@@ -21,7 +20,7 @@
     --white-color: #FFFFFF;
     --gray-color: #4E4E4E;
     --primary-font-color: rgb(30, 35, 55);
-    --shared-spacing: 1.07142857rem; /* 18px reference based on 16.8px root */
+    --shared-spacing: 1.07142857rem; /* Provides an 18px space between UI elements for aesthetic purposes. */
 }
 
 html {
@@ -41,7 +40,7 @@ body {
     color: #000000;
 }
 
-/* Nothing used as page text is smaller than H6/base (16.8px). */
+/* Nothing used as page text should be smaller than Header 6, which is "base text 16.8px". */
 small,
 .small,
 sub,
@@ -93,8 +92,7 @@ input:not([type]) {
  * ------------------------------------------------------------
  * 3. NAVIGATION BAR
  *
- * Spaced navigation buttons, 2-row link stacking,
- * balanced padding, and unbroken vertical dividers.
+ * Spaced navigation buttons, 2-row link stacking, balanced padding, and unbroken vertical dividers.
  * ------------------------------------------------------------
  */
 
@@ -159,9 +157,7 @@ header.navbar,
  */
 
 /* Anchor the Polymerization background artwork to the viewport.
-   Using a fixed attachment prevents the image from rescaling, zooming,
-   or shifting when content height changes dynamically (such as inputting
-   cards or sorting tables) and keeps the background static while scrolling. */
+   Using a fixed attachment prevents the image from rescaling, zooming, or shifting when content height changes dynamically (such as when a person inputs cards or sorts tables)... and keeps the background static while scrolling. */
 .polymerization {
     width: 100%;
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
@@ -208,7 +204,7 @@ header.navbar,
     pointer-events: none;
 }
 
-/* Section 1: Main hero container (no space above or below cover image) */
+/* Section 1: Main hero container... with no space above or below the cover image. */
 .container-main-fm {
     background: rgba(0, 0, 0, 0.5);
     margin-top: 0 !important;
@@ -227,7 +223,7 @@ header.navbar,
     white-space: nowrap;
 }
 
-/* Section 2: Fusion Search (white space above text and GIF; spacing below button) */
+/* Section 2: Fusion Search... with white space above the text header... and below this section's button. */
 .container-fusion-search {
     border-top: 0.11904762rem solid black;
     background-color: rgb(244, 244, 245);
@@ -242,7 +238,7 @@ header.navbar,
     color: var(--white-color);
 }
 
-/* Section 3: Fusion Calculator (orange space above text and Atem; spacing below button) */
+/* Section 3: Fusion Calculator... with orange space above the text header... and below this section's button. */
 .container-fusion-calculator {
     background-color: rgb(255, 134, 82);
     color: rgb(122, 10, 0);
@@ -255,7 +251,7 @@ header.navbar,
     background-color: var(--white-color);
 }
 
-/* Section 4: About (dark blue space above text and Kaiba; spacing below button) */
+/* Section 4: About... with dark blue space above the text header... and below this section's button. */
 .container-about {
     background: rgb(30, 35, 55);
     color: var(--white-color);
@@ -265,7 +261,7 @@ header.navbar,
     padding-bottom: var(--shared-spacing) !important;
 }
 
-/* Section titles flush with section top padding */
+/* Section titles should be flush with section top padding. */
 .container-fusion-search h2,
 .container-fusion-calculator h2,
 .container-about h2 {
@@ -293,7 +289,7 @@ header.navbar,
     width: 10.71428571rem;
 }
 
-/* Bottom elements flush to section bottom */
+/* Section buttons should be flush with section bottom padding. */
 .container-fusion-search .img-group,
 .container-fusion-calculator .img-atem,
 .container-about .img-kaiba {
@@ -301,7 +297,7 @@ header.navbar,
     margin-bottom: 0 !important;
 }
 
-/* The three large content buttons on index.html */
+/* This is how the three large content buttons on index.html should look. */
 .index-page-button {
     height: 2.85714286rem;
     display: flex;
