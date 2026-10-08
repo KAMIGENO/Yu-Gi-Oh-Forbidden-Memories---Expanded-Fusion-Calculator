@@ -215,6 +215,13 @@ function isMonster(card) {
 }
 
 
+function isEquip(card) {
+
+    return !!card && card.Type === 23;
+
+}
+
+
 function getCardTypeName(card) {
 
     if (!card) {
@@ -496,6 +503,10 @@ function canEquip(equipCard, targetCard) {
         return false;
     }
 
+    if (!isEquip(equipCard) || !isMonster(targetCard)) {
+        return false;
+    }
+
     return (equipLookup[equipCard.Id] || {})[targetCard.Id] === true;
 
 }
@@ -574,7 +585,7 @@ function buildEquipTargets(cards, rituals, chains) {
 
     cards.forEach(function (card) {
 
-        if (equipLookup[card.Id]) {
+        if (isEquip(card)) {
             equipCardMap[card.Id] = card;
         }
 
@@ -584,7 +595,7 @@ function buildEquipTargets(cards, rituals, chains) {
 
         var card = reachable[id].card;
 
-        if (equipLookup[card.Id]) {
+        if (isEquip(card)) {
             equipCardMap[card.Id] = card;
         }
 
@@ -634,6 +645,8 @@ function buildEquipTargets(cards, rituals, chains) {
             targets: targets
         };
 
+    }).filter(function (entry) {
+        return entry.targets.length > 0;
     }).sort(function (a, b) {
         return a.equipCard.Id - b.equipCard.Id;
     });
@@ -796,22 +809,6 @@ function fusionChainsToHTML(chains) {
 
 function fieldsToHTML(cards, chains, rituals) {
 
-    var fieldMap = {};
-
-    cards.forEach(function (card) {
-
-        if (card && fieldCardIds[card.Id]) {
-            fieldMap[card.Id] = card;
-        }
-
-    });
-
-    var fieldKeys = Object.keys(fieldMap);
-
-    if (fieldKeys.length === 0) {
-        return "";
-    }
-
     var reachableCards = {};
     var fusionDepths = {};
 
@@ -869,11 +866,15 @@ function fieldsToHTML(cards, chains, rituals) {
         return reachableCards[id];
     });
 
+    if (monsterCards.length === 0) {
+        return "";
+    }
+
     var html = "";
 
     fieldDefinitions.forEach(function (definition) {
 
-        var fieldCard = fieldMap[definition.CardId];
+        var fieldCard = getCardById(definition.CardId);
 
         if (!fieldCard) {
             return;
